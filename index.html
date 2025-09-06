@@ -40,11 +40,11 @@
 
     /* HERO */
     .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
-    .hero .cover{
-      position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/hero.jpg') center/cover no-repeat;
-      filter:saturate(1)
-    }
+.hero .cover{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/bg.jpg') center/cover no-repeat;
+  filter:saturate(1)
+}
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
     .couple{font-size:44px;line-height:1.1;font-weight:700}
     .and{font-weight:400;opacity:.9;margin:0 8px}
@@ -243,12 +243,11 @@
     </footer>
   </div>
 
-  <!-- 替换原 <audio> 标签为 QQ音乐嵌入播放器 -->
-  <!-- 示例：嵌入周杰伦《晴天》，可更换 songmid -->
-  <div style="position:fixed; right:20px; bottom:90px; z-index:10001;">
-    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86"
-      src="https://i.y.qq.com/v3/player/player.html?songmid=003OUlho2HcRHC&auto=1"></iframe>
-  </div>
+  <!-- 背景音乐（自托管方案：静音自动播 + 首次交互开声 + 漂亮浮动按钮） -->
+  <audio id="bgm" preload="auto" loop playsinline muted>
+    <source src="music/bgm.mp3" type="audio/mpeg">
+    <!-- 如果有 ogg 版本可加上：<source src="music/bgm.ogg" type="audio/ogg"> -->
+  </audio>
 
   <!-- 浮动音乐按钮 + 轻提示 -->
   <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
@@ -292,36 +291,20 @@
       renderCountdown();
       setInterval(renderCountdown, 1000);
 
-<!-- QQ 音乐外链播放器 -->
-<div class="card" style="padding:18px">
-  <h3 class="title-serif" style="margin-bottom:10px">Music · 如果我们不曾相遇</h3>
-
-  <div style="max-width:540px;margin:0 auto">
-    <div style="position:relative;width:100%;height:86px;overflow:hidden;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.06)">
-      <iframe
-        src="https://i.y.qq.com/n2/m/outchain/player/index.html?songid=107514892&songtype=0"
-        style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-        frameborder="0"
-        allow="autoplay; encrypted-media"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
-  </div>
-
-  <p class="muted" style="margin-top:10px;font-size:13px">
-    QQ 音乐外链播放器，点击播放按钮即可收听（因平台限制，不能自动播放）。
-  </p>
-</div>
+      /* === 背景音乐（静音自动播 + 首次交互开声 + 淡入 + 记忆偏好） === */
+      const audio = document.getElementById('bgm');
+      const fab   = document.getElementById('musicFab');
+      const toast = document.getElementById('toast');
+      const KEY = 'bgm_pref_v1';
 
       function showToast(msg){
         if(!toast) return;
         toast.textContent = msg;
         toast.style.display = 'block';
-        setTimeout(()=>{ toast.style.display='none'; }, 1800);
+        setTimeout(()=>{ toast.style.display='none'; }, 1600);
       }
 
-      function updateFabState(){
-        if(!audio) return;
+      function updateFab(){
         if(audio.muted || audio.paused){
           fab.classList.add('is-muted');
           fab.setAttribute('aria-label','开启音乐');
@@ -333,45 +316,58 @@
         }
       }
 
-      async function tryPlay(unmute=false){
-        try{
-          if(!audio.src){ audio.src = BGM_SRC; }         // 确保已设置音源
-          if(unmute){ audio.muted = false; }
-          const p = audio.play();
-          if(p && typeof p.then==='function'){ await p; }
-          updateFabState();
-        }catch(err){
-          // 可能是策略拦截或路径错误
-          if(!audio.src){ showToast('正在加载音乐…'); }
-          else{ showToast('点击右下角按钮以播放'); }
-          audio.muted = true; // 保持静音等待用户交互
-          updateFabState();
+      async function fadeTo(targetVol=1, ms=500){
+        const steps = 20, dt = ms/steps;
+        const start = audio.volume;
+        for(let i=1;i<=steps;i++){
+          audio.volume = start + (targetVol-start)*i/steps;
+          await new Promise(r=>setTimeout(r, dt));
         }
       }
 
-      // 1) 页面就绪：静音尝试自动播放（若被拦截不会报错，按钮会提示）
-      audio.muted = true;
-      tryPlay(false);
-
-      // 2) 任意首次交互：设置音源并开声播放（iOS 必需）
-      function firstInteraction(){
-        tryPlay(true);
-        window.removeEventListener('touchstart', firstInteraction, true);
-        window.removeEventListener('click', firstInteraction, true);
-        window.removeEventListener('keydown', firstInteraction, true);
+      async function play(unmute=false){
+        try{
+          if(unmute) audio.muted = false;
+          if(unmute) audio.volume = 0; // 从 0 淡入
+          const p = audio.play();
+          if(p && typeof p.then === 'function'){ await p; }
+          if(unmute){ await fadeTo(1, 600); }
+          updateFab();
+          localStorage.setItem(KEY, audio.muted ? 'off' : 'on');
+        }catch(e){
+          audio.muted = true;
+          updateFab();
+          showToast('点击右下角开启音乐');
+        }
       }
-      window.addEventListener('touchstart', firstInteraction, true);
-      window.addEventListener('click', firstInteraction, true);
-      window.addEventListener('keydown', firstInteraction, true);
 
-      // 3) 浮动按钮：开/关音乐
+      // 初始：静音尝试自动播放（合规）
+      audio.muted = true;
+      audio.volume = 1;
+      play(false); // 若被策略拦截不会抛错
+
+      // 如果用户之前开通过音乐，则在首次交互后自动开声
+      if(localStorage.getItem(KEY) === 'on'){
+        const first = () => { play(true); removeFirst(); };
+        const removeFirst = ()=>{
+          window.removeEventListener('touchstart', first, true);
+          window.removeEventListener('click', first, true);
+          window.removeEventListener('keydown', first, true);
+        };
+        window.addEventListener('touchstart', first, true);
+        window.addEventListener('click', first, true);
+        window.addEventListener('keydown', first, true);
+      }
+
+      // 浮动按钮：开/关音乐
       fab.addEventListener('click', async ()=>{
         if(audio.paused || audio.muted){
-          await tryPlay(true); // 开声播放
+          await play(true);  // 开声 + 淡入
         }else{
           audio.pause();
           audio.muted = true;
-          updateFabState();
+          updateFab();
+          localStorage.setItem(KEY, 'off');
         }
       });
 
@@ -381,6 +377,12 @@
           e.preventDefault();
           fab.click();
         }
+      });
+
+      // 错误监听（路径问题等）
+      audio.addEventListener('error', ()=>{
+        const code = audio.error && audio.error.code;
+        showToast(code ? `音频错误 code ${code}` : '音频加载失败');
       });
 
       /* === 地图：Leaflet + OSM === */
