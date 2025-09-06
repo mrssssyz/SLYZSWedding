@@ -40,11 +40,11 @@
 
     /* HERO */
     .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
-.hero .cover{
-  position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/bg.jpg') center/cover no-repeat;
-  filter:saturate(1)
-}
+    .hero .cover{
+      position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/bg.jpg') center/cover no-repeat; /* 按你的要求改为 bg.jpg */
+      filter:saturate(1)
+    }
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
     .couple{font-size:44px;line-height:1.1;font-weight:700}
     .and{font-weight:400;opacity:.9;margin:0 8px}
@@ -67,8 +67,9 @@
 
     /* RSVP */
     .rsvp{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
-    form input,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:14px;outline:none}
-    form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .rsvp-embed{width:100%;height:520px;border:0;border-radius:12px;box-shadow:var(--shadow);background:#fff}
+    .rsvp-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .rsvp-actions .btn{flex:1;min-width:220px;text-align:center}
 
     /* 地图 */
     .map-card{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:18px}
@@ -87,11 +88,13 @@
       .couple{font-size:36px}
       .hero .inner{padding:70px 22px}
       .gallery img{height:150px}
+      .rsvp-embed{height:560px}
     }
     @media (max-width:600px){
       form .row{grid-template-columns:1fr}
       .hero .inner{padding:56px 16px}
       .gallery img{height:140px}
+      .rsvp-embed{height:600px}
     }
 
     /* 浮动音乐按钮（优雅） */
@@ -177,32 +180,31 @@
       </div>
     </section>
 
-    <!-- RSVP + Tips -->
+    <!-- RSVP + Tips（已改为腾讯文档） -->
     <section id="rsvp">
       <h2 class="title-serif center" style="font-size:28px">宾客回执 · RSVP</h2>
       <div class="rsvp" style="margin-top:18px">
-        <form class="card" id="rsvpForm" onsubmit="handleRSVP(event)">
-          <div style="padding:18px 18px 4px"><strong>请填写出席信息：</strong></div>
-          <div style="padding:0 18px 18px" class="grid">
-            <div class="row">
-              <div><label for="name" class="muted">姓名</label><input id="name" name="name" required></div>
-              <div><label for="phone" class="muted">联系电话</label><input id="phone" name="phone"></div>
-            </div>
-            <div class="row">
-              <div>
-                <label for="attend" class="muted">是否出席</label>
-                <select id="attend" name="attend" required>
-                  <option value="">请选择…</option><option>出席</option><option>婉拒</option><option>待定</option>
-                </select>
-              </div>
-              <div><label for="guests" class="muted">同行人数</label><input id="guests" name="guests" type="number" min="0" max="10" value="0"></div>
-            </div>
-            <button type="submit" class="btn">提交回执</button>
-            <div id="thanks" class="muted" style="display:none">感谢回复！我们已收到您的信息。</div>
-          </div>
-        </form>
-
+        <!-- 左侧：内嵌腾讯文档（预览/编辑取决于你的文档权限设置） -->
         <div class="card" style="padding:18px">
+          <h3 class="title-serif" style="margin-bottom:10px">在下方表格中填写您的出席信息</h3>
+          <iframe
+            class="rsvp-embed"
+            src="https://docs.qq.com/sheet/DVXRPYWdVclBRd21G?tab=BB08J2&newPad=1&preview=1"
+            title="WeddingListForRSVP - 工作表1"
+            referrerpolicy="no-referrer-when-downgrade"
+            allow="clipboard-write">
+          </iframe>
+          <div class="rsvp-actions" style="margin-top:12px">
+            <a class="btn" target="_blank" rel="noopener" href="https://docs.qq.com/sheet/DVXRPYWdVclBRd21G?tab=BB08J2">在腾讯文档中打开（推荐）</a>
+            <a class="btn" href="#tips">查看回执须知</a>
+          </div>
+          <p class="muted" style="margin-top:10px;font-size:13px">
+            提示：如遇权限限制或无法加载，请点击“在腾讯文档中打开”，并确保该文档的分享权限已设置为可编辑。
+          </p>
+        </div>
+
+        <!-- 右侧：Tips -->
+        <div class="card" style="padding:18px" id="tips">
           <h3 class="title-serif" style="margin-bottom:10px">Tips</h3>
           <ul style="margin:0 0 12px 18px;line-height:1.8">
             <li>婚礼主题为香槟色，请宾客根据现场主题合理自行搭配穿搭。</li>
@@ -246,7 +248,6 @@
   <!-- 背景音乐（自托管方案：静音自动播 + 首次交互开声 + 漂亮浮动按钮） -->
   <audio id="bgm" preload="auto" loop playsinline muted>
     <source src="music/bgm.mp3" type="audio/mpeg">
-    <!-- 如果有 ogg 版本可加上：<source src="music/bgm.ogg" type="audio/ogg"> -->
   </audio>
 
   <!-- 浮动音乐按钮 + 轻提示 -->
@@ -379,7 +380,7 @@
         }
       });
 
-      // 错误监听（路径问题等）
+      // 错误监听
       audio.addEventListener('error', ()=>{
         const code = audio.error && audio.error.code;
         showToast(code ? `音频错误 code ${code}` : '音频加载失败');
@@ -393,20 +394,6 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OSM contributors' }).addTo(map);
         L.marker([lat, lng]).addTo(map).bindPopup('吉林省长春市 香格里拉酒店<br/>西安大路569号（人民广场附近）').openPopup();
       }
-
-      /* === RSVP → Google 表格（把 SCRIPT_URL 换成你的部署URL） === */
-      window.handleRSVP = async function(e){
-        e.preventDefault();
-        const f = e.target;
-        const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBAq8A8-iLH0B80hVMmsQJxHa6ogI8tG_uhWpmkr3LjqqB1kXELT05b7Si6dzYugnafA/exec';
-        try{
-          const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-          const j = await r.json();
-          if(j.ok){ document.getElementById('thanks').style.display='block'; f.reset(); }
-          else{ alert('提交失败，请稍后再试'); }
-        }catch(err){ alert('网络异常，请稍后再试'); }
-      };
 
       // 年份
       const y = document.getElementById('year');
