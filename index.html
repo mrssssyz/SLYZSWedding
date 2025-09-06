@@ -243,8 +243,12 @@
     </footer>
   </div>
 
-  <!-- 背景音乐（不预先写 src，由脚本在合适时机设置，更稳定） -->
-  <audio id="bgm" preload="none" loop playsinline></audio>
+  <!-- 替换原 <audio> 标签为 QQ音乐嵌入播放器 -->
+  <!-- 示例：嵌入周杰伦《晴天》，可更换 songmid -->
+  <div style="position:fixed; right:20px; bottom:90px; z-index:10001;">
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86"
+      src="https://i.y.qq.com/v3/player/player.html?songmid=003OUlho2HcRHC&auto=1"></iframe>
+  </div>
 
   <!-- 浮动音乐按钮 + 轻提示 -->
   <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
