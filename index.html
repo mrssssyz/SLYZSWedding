@@ -399,7 +399,7 @@
         e.preventDefault();
         const f = e.target;
         const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
-        const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBAq8A8-iLH0B80hVMmsQJxHa6ogI8tG_uhWpmkr3LjqqB1kXELT05b7Si6dzYugnafA/exec';
         try{
           const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
           const j = await r.json();
