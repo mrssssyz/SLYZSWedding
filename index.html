@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>我们的婚礼请柬 | Our Wedding Invitation</title>
   <meta name="description" content="网页电子请柬 – 时间、地点、RSVP、相册、地图导航" />
+  <!-- Leaflet CSS (global CDN) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
 
   <style>
@@ -13,41 +14,103 @@
       --brand:#2f4f4f; --brand-2:#b08a68;
       --radius:22px; --shadow:0 12px 36px rgba(0,0,0,.08);
     }
-    *{box-sizing:border-box} html,body{height:100%}
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       color:var(--fg);
       background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
     }
+
     .container{max-width:1040px;margin:0 auto;padding:24px}
-    section{padding:48px 0} h1,h2,h3{margin:0 0 16px}
+    section{padding:48px 0}
+    h1,h2,h3{margin:0 0 16px}
     .title-serif{font-family:"Songti SC","STSong","Hiragino Mincho ProN","Yu Mincho","SimSun",Georgia,"Times New Roman",serif;letter-spacing:.02em}
     .muted{color:var(--muted)}
     .btn{display:inline-block;padding:12px 20px;border-radius:999px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)}
     .btn:hover{filter:brightness(0.96)}
     .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .grid{display:grid;gap:20px} .center{text-align:center}
-    .ornament{height:26px;margin:12px auto 6px;max-width:320px;background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');}
+    .grid{display:grid;gap:20px}
+    .center{text-align:center}
+
+    /* 装饰分隔 */
+    .ornament{
+      height:26px;margin:12px auto 6px;max-width:320px;
+      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
+    }
+
+    /* HERO */
     .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
-    .hero .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/hero.jpg') center/cover no-repeat;filter:saturate(1)}
+    .hero .cover{
+      position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/hero.jpg') center/cover no-repeat;
+      filter:saturate(1)
+    }
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
-    .couple{font-size:44px;line-height:1.1;font-weight:700}.and{font-weight:400;opacity:.9;margin:0 8px}
-    .dateplace{margin-top:10px;font-size:16px;letter-spacing:.06em}.scroll-down{margin-top:22px;display:inline-block;font-size:14px;opacity:.9}
+    .couple{font-size:44px;line-height:1.1;font-weight:700}
+    .and{font-weight:400;opacity:.9;margin:0 8px}
+    .dateplace{margin-top:10px;font-size:16px;letter-spacing:.06em}
+    .scroll-down{margin-top:22px;display:inline-block;font-size:14px;opacity:.9}
+
+    /* 倒计时 */
     .countdown{display:flex;justify-content:center;gap:14px;margin-top:18px}
     .dd{min-width:74px;padding:12px;border-radius:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
     .dd strong{display:block;font-size:22px}
-    .schedule{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))} .schedule .item{padding:18px} .schedule .item h3{font-size:18px;margin-bottom:6px}
-    .gallery{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))} .gallery img{width:100%;height:180px;object-fit:cover;border-radius:14px}
+
+    /* 日程 */
+    .schedule{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .schedule .item{padding:18px}
+    .schedule .item h3{font-size:18px;margin-bottom:6px}
+
+    /* 相册 */
+    .gallery{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    .gallery img{width:100%;height:180px;object-fit:cover;border-radius:14px}
+
+    /* RSVP */
     .rsvp{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
-    @media (max-width:800px){.rsvp{grid-template-columns:1fr}.couple{font-size:36px}.hero .inner{padding:70px 22px}.gallery img{height:150px}}
-    @media (max-width:600px){form .row{grid-template-columns:1fr}.hero .inner{padding:56px 16px}.gallery img{height:140px}}
     form input,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:14px;outline:none}
     form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+    /* 地图 */
     .map-card{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:18px}
     .map{aspect-ratio:16/10;border:0;width:100%;border-radius:12px;min-height:300px}
-    @media (max-width:900px){.map-card{grid-template-columns:1fr}}
+    /* 竖排按钮 */
+    .map-actions{display:flex;flex-direction:column;gap:10px}
+    .map-actions .btn{width:100%;text-align:center}
+
+    /* 页脚 */
     footer{padding:34px 0;color:var(--muted);font-size:14px}
+
+    /* 响应式 */
+    @media (max-width:900px){.map-card{grid-template-columns:1fr}}
+    @media (max-width:800px){
+      .rsvp{grid-template-columns:1fr}
+      .couple{font-size:36px}
+      .hero .inner{padding:70px 22px}
+      .gallery img{height:150px}
+    }
+    @media (max-width:600px){
+      form .row{grid-template-columns:1fr}
+      .hero .inner{padding:56px 16px}
+      .gallery img{height:140px}
+    }
+
+    /* 浮动音乐按钮（优雅） */
+    .music-fab{
+      position:fixed; right:16px; bottom:16px; z-index:9999;
+      width:54px; height:54px; border-radius:999px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--brand); color:#fff; box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.08); cursor:pointer;
+    }
+    .music-fab svg{width:24px;height:24px;display:block}
+    .music-fab .muted-icon{display:none}
+    .music-fab.is-muted .muted-icon{display:block}
+    .music-fab.is-muted .play-icon{display:none}
+    .music-fab:focus-visible{outline:3px solid rgba(176,138,104,.6); outline-offset:2px}
   </style>
+
+  <!-- Leaflet JS -->
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -60,12 +123,14 @@
         <h1 class="couple title-serif">宋禹洲 <span class="and">&</span> 骆沙</h1>
         <div class="ornament" aria-hidden="true"></div>
         <div class="dateplace">2025年10月19日 上午10:58 · 吉林省长春市 香格里拉酒店</div>
+
         <div class="countdown" role="timer" aria-live="polite">
           <div class="dd"><strong id="dday">--</strong><span>天</span></div>
           <div class="dd"><strong id="dh">--</strong><span>小时</span></div>
           <div class="dd"><strong id="dm">--</strong><span>分钟</span></div>
           <div class="dd"><strong id="ds">--</strong><span>秒</span></div>
         </div>
+
         <a class="scroll-down" href="#rsvp">↓ 立即回复 RSVP</a>
       </div>
     </section>
@@ -130,6 +195,7 @@
             <div id="thanks" class="muted" style="display:none">感谢回复！我们已收到您的信息。</div>
           </div>
         </form>
+
         <div class="card" style="padding:18px">
           <h3 class="title-serif" style="margin-bottom:10px">Tips</h3>
           <ul style="margin:0 0 12px 18px;line-height:1.8">
@@ -151,11 +217,16 @@
           <h3>吉林省长春市 · 香格里拉酒店</h3>
           <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
           <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
-          <p>
-            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
-            <a class="btn" style="margin-left:8px" target="_blank" rel="noopener" href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
-          </p>
+
+          <!-- 竖排按钮 -->
+          <div class="map-actions">
+            <a class="btn" target="_blank" rel="noopener"
+               href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
+            <a class="btn" target="_blank" rel="noopener"
+               href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
+          </div>
         </div>
+
         <div id="leaflet-map" class="map"></div>
       </div>
     </section>
@@ -166,55 +237,140 @@
     </footer>
   </div>
 
-  <!-- 背景音乐 -->
-  <audio id="bgm" src="music/bgm.mp3" autoplay loop playsinline preload="auto"></audio>
+  <!-- 背景音乐：静音自动播放 + 漂亮浮动按钮控制 -->
+  <audio id="bgm" src="music/bgm.mp3" preload="auto" loop playsinline autoplay muted></audio>
+  <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
+    <!-- 播放中图标（音符+声波） -->
+    <svg class="play-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor" opacity=".9"/>
+      <path d="M13 5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M13 5l7-2v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18.5 14.5c1 .8 1.5 1.6 1.5 2.5s-.5 1.7-1.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/>
+    </svg>
+    <!-- 静音图标 -->
+    <svg class="muted-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 10h3l5-4v12l-5-4H4z" fill="currentColor" />
+      <path d="M16 9l5 5M21 9l-5 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
 
   <script>
-    // 倒计时
-    const WEDDING_UTC = new Date('2025-10-19T02:58:00Z');
-    function updateCountdown(){
-      const now = new Date();
-      let diff = Math.max(0, WEDDING_UTC - now);
-      const d = Math.floor(diff / 86400000); diff -= d*86400000;
-      const h = Math.floor(diff / 3600000);  diff -= h*3600000;
-      const m = Math.floor(diff / 60000);    diff -= m*60000;
-      const s = Math.floor(diff / 1000);
-      document.getElementById('dday').textContent = String(d).padStart(2,'0');
-      document.getElementById('dh').textContent = String(h).padStart(2,'0');
-      document.getElementById('dm').textContent = String(m).padStart(2,'0');
-      document.getElementById('ds').textContent = String(s).padStart(2,'0');
-    }
-    setInterval(updateCountdown, 1000); updateCountdown();
+    document.addEventListener('DOMContentLoaded', function(){
+      /* === 倒计时（UTC 瞬时）=== */
+      const targetUTC = new Date(Date.UTC(2025, 9, 19, 2, 58, 0)); // 2025-10-19 10:58 (Asia/Shanghai) == 02:58Z
+      const dEl = document.getElementById('dday'),
+            hEl = document.getElementById('dh'),
+            mEl = document.getElementById('dm'),
+            sEl = document.getElementById('ds');
 
-    // RSVP → Google 表格
-    const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
-    async function handleRSVP(e){
-      e.preventDefault();
-      const f = e.target;
-      const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
-      try{
-        const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-        const j = await r.json();
-        if(j.ok){ document.getElementById('thanks').style.display='block'; f.reset(); }
-        else{ alert('提交失败，请稍后再试'); }
-      }catch(err){ alert('网络异常，请稍后再试'); }
-    }
+      function renderCountdown(){
+        if(!dEl || !hEl || !mEl || !sEl) return;
+        const now = new Date();
+        let diff = Math.max(0, targetUTC.getTime() - now.getTime());
+        const d = Math.floor(diff / 86400000); diff -= d*86400000;
+        const h = Math.floor(diff / 3600000);  diff -= h*3600000;
+        const m = Math.floor(diff / 60000);    diff -= m*60000;
+        const s = Math.floor(diff / 1000);
+        dEl.textContent = String(d).padStart(2,'0');
+        hEl.textContent = String(h).padStart(2,'0');
+        mEl.textContent = String(m).padStart(2,'0');
+        sEl.textContent = String(s).padStart(2,'0');
+      }
+      renderCountdown();
+      setInterval(renderCountdown, 1000);
 
-    // 年份
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{
-      a.addEventListener('click', e=>{
-        const id = a.getAttribute('href');
-        if(id.length>1){ e.preventDefault(); document.querySelector(id)?.scrollIntoView({behavior:'smooth',block:'start'}); }
-      });
-    });
-
-    // 背景音乐兜底
-    (function(){
+      /* === 背景音乐：静音自动播 + 首次交互开声 + 浮动按钮 === */
       const audio = document.getElementById('bgm');
-      if(!audio) return;
-      const btn = document.createElement('button');
-      btn.id = 'unmute';
-      btn.textContent =
+      const fab   = document.getElementById('musicFab');
+
+      async function ensurePlay(unmute=false){
+        if(!audio) return;
+        try{
+          if(unmute) audio.muted = false;
+          const p = audio.play();
+          if(p && typeof p.then === 'function'){ await p; }
+          // 根据状态切换按钮
+          updateFabState();
+        }catch(err){
+          // 若失败（多见于iOS），保持按钮可见，等待用户点击
+          audio.muted = true; // 静音以允许自动播放
+          updateFabState();
+        }
+      }
+
+      function updateFabState(){
+        if(!audio) return;
+        if(audio.muted || audio.paused){
+          fab.classList.add('is-muted');
+          fab.setAttribute('aria-label','开启音乐');
+          fab.title = '开启音乐';
+        }else{
+          fab.classList.remove('is-muted');
+          fab.setAttribute('aria-label','关闭音乐');
+          fab.title = '关闭音乐';
+        }
+      }
+
+      // 页面就绪后尝试静音自动播放（大多数浏览器允许）
+      ensurePlay(false);
+
+      // 任意首次用户交互时，尝试开声
+      function firstInteraction(){
+        ensurePlay(true);
+        window.removeEventListener('touchstart', firstInteraction, true);
+        window.removeEventListener('click', firstInteraction, true);
+        window.removeEventListener('keydown', firstInteraction, true);
+      }
+      window.addEventListener('touchstart', firstInteraction, true);
+      window.addEventListener('click', firstInteraction, true);
+      window.addEventListener('keydown', firstInteraction, true);
+
+      // 浮动按钮点击：开/关音乐
+      fab.addEventListener('click', async ()=>{
+        if(audio.muted || audio.paused){
+          await ensurePlay(true);   // 开声播放
+        }else{
+          audio.pause();            // 暂停
+          audio.muted = true;       // 同时设为静音，避免后续自动播放有声
+          updateFabState();
+        }
+      });
+
+      // 键盘无障碍：空格/回车触发
+      fab.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          fab.click();
+        }
+      });
+
+      /* === 地图：Leaflet + OSM === */
+      const el = document.getElementById('leaflet-map');
+      if(el){
+        const lat = 43.892416, lng = 125.312401;
+        const map = L.map(el, { scrollWheelZoom:false }).setView([lat, lng], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OSM contributors' }).addTo(map);
+        L.marker([lat, lng]).addTo(map).bindPopup('吉林省长春市 香格里拉酒店<br/>西安大路569号（人民广场附近）').openPopup();
+      }
+
+      /* === RSVP → Google 表格（请把 SCRIPT_URL 换成你的部署URL）=== */
+      window.handleRSVP = async function(e){
+        e.preventDefault();
+        const f = e.target;
+        const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
+        const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // ← 替换为你的 Apps Script 部署URL
+        try{
+          const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+          const j = await r.json();
+          if(j.ok){ document.getElementById('thanks').style.display='block'; f.reset(); }
+          else{ alert('提交失败，请稍后再试'); }
+        }catch(err){ alert('网络异常，请稍后再试'); }
+      };
+
+      // 年份
+      const y = document.getElementById('year');
+      if(y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>
