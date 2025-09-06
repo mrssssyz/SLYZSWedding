@@ -5,110 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>我们的婚礼请柬 | Our Wedding Invitation</title>
   <meta name="description" content="网页电子请柬 – 时间、地点、RSVP、相册、地图导航" />
-
-  <!-- Map CSS (global CDN) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
 
   <style>
     :root{
-      --bg:#f5f1eb; /* 亚麻米色，简朴 */
-      --card:#ffffff;
-      --fg:#1a1a1a;  /* 稳重的深灰黑 */
-      --muted:#6f7278;
-      --brand:#2f4f4f; /* 深石板绿，深厚稳重 */
-      --brand-2:#b08a68; /* 温暖香槟金，浪漫点缀 */
-      --radius:22px;
-      --shadow:0 12px 36px rgba(0,0,0,.08);
+      --bg:#f5f1eb; --card:#fff; --fg:#1a1a1a; --muted:#6f7278;
+      --brand:#2f4f4f; --brand-2:#b08a68;
+      --radius:22px; --shadow:0 12px 36px rgba(0,0,0,.08);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box} html,body{height:100%}
     body{
-      margin:0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+      margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       color:var(--fg);
-      /* 大背景 + 浅色遮罩，保证不同设备色调稳定 */
-      background: linear-gradient(rgba(245,241,235,.92), rgba(245,241,235,.92)), url('images/bg.jpg') center/cover no-repeat;
+      background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
     }
-
-    /* 基础布局 */
     .container{max-width:1040px;margin:0 auto;padding:24px}
-    section{padding:48px 0}
-    h1,h2,h3{margin:0 0 16px}
-    .title-serif{font-family: "Songti SC", "STSong", "Hiragino Mincho ProN", "Yu Mincho", "SimSun", Georgia, "Times New Roman", serif; letter-spacing:.02em}
+    section{padding:48px 0} h1,h2,h3{margin:0 0 16px}
+    .title-serif{font-family:"Songti SC","STSong","Hiragino Mincho ProN","Yu Mincho","SimSun",Georgia,"Times New Roman",serif;letter-spacing:.02em}
     .muted{color:var(--muted)}
-    .btn{display:inline-block;padding:12px 20px;border-radius:999px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06);transform:translateZ(0);}
+    .btn{display:inline-block;padding:12px 20px;border-radius:999px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)}
     .btn:hover{filter:brightness(0.96)}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);}
-    .grid{display:grid;gap:20px}
-    .center{text-align:center}
-
-    /* 装饰分隔（现代浪漫） */
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .grid{display:grid;gap:20px} .center{text-align:center}
     .ornament{height:26px;margin:12px auto 6px;max-width:320px;background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');}
-
-    /* 顶部 Hero */
-    .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2);}
-    .hero .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)), url('images/hero.jpg') center/cover no-repeat;filter:saturate(1)}
+    .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
+    .hero .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/hero.jpg') center/cover no-repeat;filter:saturate(1)}
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
-    .couple{font-size:44px;line-height:1.1;font-weight:700;}
-    .and{font-weight:400;opacity:.9;margin:0 8px}
-    .dateplace{margin-top:10px;font-size:16px;letter-spacing:.06em}
-    .scroll-down{margin-top:22px;display:inline-block;font-size:14px;opacity:.9}
-
-    /* 倒计时 */
+    .couple{font-size:44px;line-height:1.1;font-weight:700}.and{font-weight:400;opacity:.9;margin:0 8px}
+    .dateplace{margin-top:10px;font-size:16px;letter-spacing:.06em}.scroll-down{margin-top:22px;display:inline-block;font-size:14px;opacity:.9}
     .countdown{display:flex;justify-content:center;gap:14px;margin-top:18px}
     .dd{min-width:74px;padding:12px;border-radius:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
     .dd strong{display:block;font-size:22px}
-
-    /* 日程卡片 */
-    .schedule{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-    .schedule .item{padding:18px}
-    .schedule .item h3{font-size:18px;margin-bottom:6px}
-
-    /* 相册网格 */
-    .gallery{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-    .gallery img{width:100%;height:180px;object-fit:cover;border-radius:14px}
-
-    /* RSVP 区域 */
+    .schedule{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))} .schedule .item{padding:18px} .schedule .item h3{font-size:18px;margin-bottom:6px}
+    .gallery{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))} .gallery img{width:100%;height:180px;object-fit:cover;border-radius:14px}
     .rsvp{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
-    @media (max-width:800px){
-      .rsvp{grid-template-columns:1fr}
-      .couple{font-size:36px}
-      .hero .inner{padding:70px 22px}
-      .gallery img{height:150px}
-    }
-    form input, form textarea, form select{
-      width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:14px;outline:none
-    }
+    @media (max-width:800px){.rsvp{grid-template-columns:1fr}.couple{font-size:36px}.hero .inner{padding:70px 22px}.gallery img{height:150px}}
+    @media (max-width:600px){form .row{grid-template-columns:1fr}.hero .inner{padding:56px 16px}.gallery img{height:140px}}
+    form input,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:14px;outline:none}
     form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    @media (max-width:600px){
-      form .row{grid-template-columns:1fr}
-      .hero .inner{padding:56px 16px}
-      .gallery img{height:140px}
-    }
-
-    /* 地图卡片 */
     .map-card{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:18px}
     .map{aspect-ratio:16/10;border:0;width:100%;border-radius:12px;min-height:300px}
     @media (max-width:900px){.map-card{grid-template-columns:1fr}}
-
-    /* 页脚 */
     footer{padding:34px 0;color:var(--muted);font-size:14px}
-
-    /* 暗色模式轻支持 */
-    @media (prefers-color-scheme: dark){
-      :root{--bg:#111827;--card:#0b1220;--fg:#eef2f7;--muted:#94a3b8;--brand:#b88a7a;--brand-2:#d5b8ab}
-      .dd{background:rgba(255,255,255,.06)}
-      form input,form textarea,form select{background:#0f172a;border-color:#1f2937;color:#e5e7eb}
-      .hero .cover{filter:saturate(1)}
-    }
   </style>
-
-  <!-- Map JS -->
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container">
-
     <!-- HERO -->
     <section class="hero card" id="home">
       <div class="cover" aria-hidden="true"></div>
@@ -133,7 +76,7 @@
       <a href="#details" class="btn">查看详细信息</a>
     </section>
 
-    <!-- 日程安排 -->
+    <!-- 日程 -->
     <section id="details">
       <h2 class="title-serif center" style="font-size:28px">婚礼日程 · Schedule</h2>
       <div class="grid schedule" style="margin-top:18px">
@@ -169,31 +112,19 @@
       <div class="rsvp" style="margin-top:18px">
         <form class="card" id="rsvpForm" onsubmit="handleRSVP(event)">
           <div style="padding:18px 18px 4px"><strong>请填写出席信息：</strong></div>
-          <div style="padding:0 18px 18px" class="grid" >
+          <div style="padding:0 18px 18px" class="grid">
             <div class="row">
-              <div>
-                <label for="name" class="muted">姓名</label>
-                <input id="name" name="name" placeholder="例如：王小明" required />
-              </div>
-              <div>
-                <label for="phone" class="muted">联系电话</label>
-                <input id="phone" name="phone" placeholder="用于确认联络" />
-              </div>
+              <div><label for="name" class="muted">姓名</label><input id="name" name="name" required></div>
+              <div><label for="phone" class="muted">联系电话</label><input id="phone" name="phone"></div>
             </div>
             <div class="row">
               <div>
                 <label for="attend" class="muted">是否出席</label>
                 <select id="attend" name="attend" required>
-                  <option value="">请选择…</option>
-                  <option>出席</option>
-                  <option>婉拒</option>
-                  <option>待定</option>
+                  <option value="">请选择…</option><option>出席</option><option>婉拒</option><option>待定</option>
                 </select>
               </div>
-              <div>
-                <label for="guests" class="muted">同行人数</label>
-                <input id="guests" name="guests" type="number" min="0" max="10" value="0" />
-              </div>
+              <div><label for="guests" class="muted">同行人数</label><input id="guests" name="guests" type="number" min="0" max="10" value="0"></div>
             </div>
             <button type="submit" class="btn">提交回执</button>
             <div id="thanks" class="muted" style="display:none">感谢回复！我们已收到您的信息。</div>
@@ -212,9 +143,6 @@
       </div>
     </section>
 
-    <!-- 背景音乐（若被拦截，会显示按钮） -->
-    <audio id="bgm" src="music/bgm.mp3" autoplay loop playsinline preload="auto"></audio>
-
     <!-- 地点与交通 -->
     <section id="map">
       <h2 class="title-serif center" style="font-size:28px">地点与交通 · Venue</h2>
@@ -232,24 +160,24 @@
       </div>
     </section>
 
-    <!-- 页脚 -->
     <footer class="center">
       <div>感谢见证我们的幸福时刻 · With love, Yuzhou & Sha</div>
       <div style="margin-top:6px" class="muted">© <span id="year"></span> Our Wedding</div>
     </footer>
-
   </div>
 
-  <script>
-    // === 婚礼时间（使用绝对 UTC 瞬时，保证不同时区倒计时一致）===
-    const WEDDING_UTC = new Date('2025-10-19T02:58:00Z'); // 10:58 (Asia/Shanghai)
+  <!-- 背景音乐 -->
+  <audio id="bgm" src="music/bgm.mp3" autoplay loop playsinline preload="auto"></audio>
 
+  <script>
+    // 倒计时
+    const WEDDING_UTC = new Date('2025-10-19T02:58:00Z');
     function updateCountdown(){
       const now = new Date();
-      let diff = Math.max(0, WEDDING_UTC.getTime() - now.getTime());
-      const d = Math.floor(diff / (1000*60*60*24)); diff -= d*24*60*60*1000;
-      const h = Math.floor(diff / (1000*60*60)); diff -= h*60*60*1000;
-      const m = Math.floor(diff / (1000*60)); diff -= m*60*1000;
+      let diff = Math.max(0, WEDDING_UTC - now);
+      const d = Math.floor(diff / 86400000); diff -= d*86400000;
+      const h = Math.floor(diff / 3600000);  diff -= h*3600000;
+      const m = Math.floor(diff / 60000);    diff -= m*60000;
       const s = Math.floor(diff / 1000);
       document.getElementById('dday').textContent = String(d).padStart(2,'0');
       document.getElementById('dh').textContent = String(h).padStart(2,'0');
@@ -258,31 +186,21 @@
     }
     setInterval(updateCountdown, 1000); updateCountdown();
 
-    // RSVP → Google 表格：请先按说明部署 Apps Script
-    // 用你的表格ID：1dvRhzuI5tXvrBRs-5sI5rxcl-fH7BBEm4gHUDXHK8r0
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBAq8A8-iLH0B80hVMmsQJxHa6ogI8tG_uhWpmkr3LjqqB1kXELT05b7Si6dzYugnafA/exec'; // 部署后替换为实际 URL
+    // RSVP → Google 表格
+    const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
     async function handleRSVP(e){
       e.preventDefault();
       const f = e.target;
-      const payload = {
-        name: f.name.value,
-        phone: f.phone.value,
-        attend: f.attend.value,
-        guests: f.guests.value
-      };
+      const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
       try{
-        const res = await fetch(SCRIPT_URL, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        if(json.ok){ document.getElementById('thanks').style.display='block'; f.reset(); }
+        const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        const j = await r.json();
+        if(j.ok){ document.getElementById('thanks').style.display='block'; f.reset(); }
         else{ alert('提交失败，请稍后再试'); }
       }catch(err){ alert('网络异常，请稍后再试'); }
     }
 
-    // 当前年份
+    // 年份
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // 平滑滚动
@@ -293,51 +211,10 @@
       });
     });
 
-    // 背景音乐自动播放兜底（若被拦截则显示按钮）
+    // 背景音乐兜底
     (function(){
       const audio = document.getElementById('bgm');
       if(!audio) return;
       const btn = document.createElement('button');
       btn.id = 'unmute';
-      btn.textContent = '开启音乐';
-      btn.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:9999;padding:10px 14px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:var(--brand);color:#fff;box-shadow:var(--shadow);display:none';
-      document.body.appendChild(btn);
-      function tryPlay(){ const p = audio.play(); if(p && typeof p.then==='function'){ p.then(()=>{}).catch(()=>{ btn.style.display='block'; }); } }
-      tryPlay();
-      btn.addEventListener('click', ()=>{ audio.muted=false; audio.play(); btn.style.display='none'; });
-      audio.muted=false;
-    })();
-
-    // Leaflet 地图（长春香格里拉）
-    (function(){
-      const el = document.getElementById('leaflet-map'); if(!el) return;
-      const lat = 43.892416, lng = 125.312401;
-      const map = L.map(el, { scrollWheelZoom:false }).setView([lat, lng], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OSM contributors'
-      }).addTo(map);
-      L.marker([lat, lng]).addTo(map).bindPopup('吉林省长春市 香格里拉酒店<br/>西安大路569号（人民广场附近）').openPopup();
-    })();
-
-    /* == 在你的 Google 表格部署 Apps Script（使用你提供的表格ID）==
-      1) 打开表格：https://docs.google.com/spreadsheets/d/1dvRhzuI5tXvrBRs-5sI5rxcl-fH7BBEm4gHUDXHK8r0/edit
-      2) 扩展程序 → Apps Script，粘贴以下代码并保存：
-
-      const SHEET_ID = '1dvRhzuI5tXvrBRs-5sI5rxcl-fH7BBEm4gHUDXHK8r0';
-      const SHEET_NAME = '工作表1'; // 改成你的表页名
-      function doPost(e){
-        const ss = SpreadsheetApp.openById(SHEET_ID);
-        const sheet = ss.getSheetByName(SHEET_NAME);
-        const data = JSON.parse(e.postData.contents);
-        sheet.appendRow([ new Date(), data.name||'', data.phone||'', data.attend||'', data.guests||'' ]);
-        return ContentService.createTextOutput(JSON.stringify({ok:true}))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-
-      3) 点击“部署 → 新部署”，类型选“网络应用”，访问权限选“任何人”。
-      4) 复制生成的 URL，替换上面 SCRIPT_URL 的值。
-    */
-  </script>
-</body>
-</html>
+      btn.textContent =
