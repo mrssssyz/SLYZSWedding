@@ -14,8 +14,7 @@
       --brand:#2f4f4f; --brand-2:#b08a68;
       --radius:22px; --shadow:0 12px 36px rgba(0,0,0,.08);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box} html,body{height:100%}
     body{
       margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       color:var(--fg);
@@ -108,6 +107,13 @@
     .music-fab.is-muted .muted-icon{display:block}
     .music-fab.is-muted .play-icon{display:none}
     .music-fab:focus-visible{outline:3px solid rgba(176,138,104,.6); outline-offset:2px}
+
+    /* 轻提示 */
+    .toast{
+      position:fixed; left:50%; bottom:84px; transform:translateX(-50%);
+      background:rgba(0,0,0,.76); color:#fff; padding:10px 14px; border-radius:999px;
+      font-size:13px; z-index:9999; display:none;
+    }
   </style>
 
   <!-- Leaflet JS -->
@@ -153,7 +159,7 @@
         <div class="item card">
           <h3>典礼 / 午宴</h3>
           <div class="muted">10:58 – 14:00 · 宴会厅</div>
-          <p>誓言、午宴与亲友庆祝</p>
+          <p>典礼、午宴与亲友庆祝</p>
         </div>
       </div>
     </section>
@@ -237,10 +243,12 @@
     </footer>
   </div>
 
-  <!-- 背景音乐：静音自动播放 + 漂亮浮动按钮控制 -->
-  <audio id="bgm" src="music/bgm.mp3" preload="auto" loop playsinline autoplay muted></audio>
+  <!-- 背景音乐（不预先写 src，由脚本在合适时机设置，更稳定） -->
+  <audio id="bgm" preload="none" loop playsinline></audio>
+
+  <!-- 浮动音乐按钮 + 轻提示 -->
   <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
-    <!-- 播放中图标（音符+声波） -->
+    <!-- 播放中图标 -->
     <svg class="play-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor" opacity=".9"/>
       <path d="M13 5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -253,10 +261,11 @@
       <path d="M16 9l5 5M21 9l-5 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
     </svg>
   </button>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function(){
-      /* === 倒计时（UTC 瞬时）=== */
+      /* === 倒计时（UTC 瞬时） === */
       const targetUTC = new Date(Date.UTC(2025, 9, 19, 2, 58, 0)); // 2025-10-19 10:58 (Asia/Shanghai) == 02:58Z
       const dEl = document.getElementById('dday'),
             hEl = document.getElementById('dh'),
@@ -279,23 +288,17 @@
       renderCountdown();
       setInterval(renderCountdown, 1000);
 
-      /* === 背景音乐：静音自动播 + 首次交互开声 + 浮动按钮 === */
-      const audio = document.getElementById('bgm');
-      const fab   = document.getElementById('musicFab');
+      /* === 背景音乐：更稳健的加载与播放流程 === */
+      const BGM_SRC = 'music/bgm.mp3'; // ← 你仓库中的路径
+      const audio   = document.getElementById('bgm');
+      const fab     = document.getElementById('musicFab');
+      const toast   = document.getElementById('toast');
 
-      async function ensurePlay(unmute=false){
-        if(!audio) return;
-        try{
-          if(unmute) audio.muted = false;
-          const p = audio.play();
-          if(p && typeof p.then === 'function'){ await p; }
-          // 根据状态切换按钮
-          updateFabState();
-        }catch(err){
-          // 若失败（多见于iOS），保持按钮可见，等待用户点击
-          audio.muted = true; // 静音以允许自动播放
-          updateFabState();
-        }
+      function showToast(msg){
+        if(!toast) return;
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        setTimeout(()=>{ toast.style.display='none'; }, 1800);
       }
 
       function updateFabState(){
@@ -311,12 +314,29 @@
         }
       }
 
-      // 页面就绪后尝试静音自动播放（大多数浏览器允许）
-      ensurePlay(false);
+      async function tryPlay(unmute=false){
+        try{
+          if(!audio.src){ audio.src = BGM_SRC; }         // 确保已设置音源
+          if(unmute){ audio.muted = false; }
+          const p = audio.play();
+          if(p && typeof p.then==='function'){ await p; }
+          updateFabState();
+        }catch(err){
+          // 可能是策略拦截或路径错误
+          if(!audio.src){ showToast('正在加载音乐…'); }
+          else{ showToast('点击右下角按钮以播放'); }
+          audio.muted = true; // 保持静音等待用户交互
+          updateFabState();
+        }
+      }
 
-      // 任意首次用户交互时，尝试开声
+      // 1) 页面就绪：静音尝试自动播放（若被拦截不会报错，按钮会提示）
+      audio.muted = true;
+      tryPlay(false);
+
+      // 2) 任意首次交互：设置音源并开声播放（iOS 必需）
       function firstInteraction(){
-        ensurePlay(true);
+        tryPlay(true);
         window.removeEventListener('touchstart', firstInteraction, true);
         window.removeEventListener('click', firstInteraction, true);
         window.removeEventListener('keydown', firstInteraction, true);
@@ -325,18 +345,18 @@
       window.addEventListener('click', firstInteraction, true);
       window.addEventListener('keydown', firstInteraction, true);
 
-      // 浮动按钮点击：开/关音乐
+      // 3) 浮动按钮：开/关音乐
       fab.addEventListener('click', async ()=>{
-        if(audio.muted || audio.paused){
-          await ensurePlay(true);   // 开声播放
+        if(audio.paused || audio.muted){
+          await tryPlay(true); // 开声播放
         }else{
-          audio.pause();            // 暂停
-          audio.muted = true;       // 同时设为静音，避免后续自动播放有声
+          audio.pause();
+          audio.muted = true;
           updateFabState();
         }
       });
 
-      // 键盘无障碍：空格/回车触发
+      // 键盘无障碍
       fab.addEventListener('keydown', (e)=>{
         if(e.key === 'Enter' || e.key === ' '){
           e.preventDefault();
@@ -353,12 +373,12 @@
         L.marker([lat, lng]).addTo(map).bindPopup('吉林省长春市 香格里拉酒店<br/>西安大路569号（人民广场附近）').openPopup();
       }
 
-      /* === RSVP → Google 表格（请把 SCRIPT_URL 换成你的部署URL）=== */
+      /* === RSVP → Google 表格（把 SCRIPT_URL 换成你的部署URL） === */
       window.handleRSVP = async function(e){
         e.preventDefault();
         const f = e.target;
         const payload = { name:f.name.value, phone:f.phone.value, attend:f.attend.value, guests:f.guests.value };
-        const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // ← 替换为你的 Apps Script 部署URL
+        const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
         try{
           const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
           const j = await r.json();
