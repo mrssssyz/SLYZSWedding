@@ -73,14 +73,25 @@
     .schedule .item{padding:18px}
     .schedule .item h3{font-size:1.05rem;margin-bottom:6px}
 
-    .gallery{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    /* === Gallery 样式调整：在原图基础上按终端合理缩小，且不裁切 === */
+    .gallery{
+      grid-template-columns:1fr;                 /* CHANGED: 单列展示，便于居中与控制 */
+      justify-items:center;                      /* CHANGED: 图片在容器中水平居中 */
+    }
     .gallery img{
-      width:100%;
-      height:auto;               /* CHANGED: 自适应高度 */
-      max-height:280px;          /* CHANGED: 限制过高，避免撑破布局 */
-      object-fit:cover;
+      display:block;
+      width:auto;                                /* CHANGED: 以原始宽度为基础，不主动放大 */
+      height:auto;                               /* CHANGED: 保持原始比例 */
+      max-width:min(100%, 900px);                /* CHANGED: 桌面端上限不超过容器/900px */
+      max-height:70vh;                           /* CHANGED: 桌面端高度不超过视口70% */
+      object-fit:contain;                        /* CHANGED: 不裁切，完整显示整张照片 */
       border-radius:14px;
-      display:block;             /* CHANGED: 消除行内空隙 */
+    }
+    @media (max-width:720px){
+      .gallery img{
+        max-width:92vw;                          /* CHANGED: 移动端按视口宽度收缩 */
+        max-height:60vh;                         /* CHANGED: 减少占屏，避免遮挡内容 */
+      }
     }
 
     .rsvp{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
@@ -137,7 +148,7 @@
       .rsvp{grid-template-columns:1fr}
       .couple{font-size:2.25rem}
       .hero .inner{padding:70px 22px}
-      .gallery img{max-height:240px} /* 移动端稍更紧凑 */
+      /* .gallery img 的移动端尺寸限制已在上方媒体查询中设置 */
       .rsvp-embed{height:600px}
       .menu-grid{grid-template-columns:1fr}
       .modal .panel{width:94vw; max-height:85vh; border-radius:16px}
@@ -210,7 +221,8 @@
     <section id="gallery">
       <h2 class="title-serif center">Gallery</h2>
       <div class="grid gallery" style="margin-top:18px">
-        <img src="images/p1.jpg" alt="Photo 1" loading="lazy"> <!-- CHANGED: 懒加载 -->
+        <!-- CHANGED: 仅在容器/终端尺寸不足时自动缩小，不再裁切或拉伸 -->
+        <img src="images/p1.jpg" alt="Photo 1" loading="lazy">
       </div>
     </section>
 
