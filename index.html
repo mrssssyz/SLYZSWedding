@@ -22,8 +22,17 @@
       font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,
         "Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       line-height:1.7; color:var(--fg);
-      background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
+      background:var(--bg); /* 只用纯色，不用图片 */
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    /* 新增整体背景图容器 */
+    .main-bg {
+      background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
+      min-height:100vh;
+      width:100%;
+      position:fixed;
+      inset:0;
+      z-index:-1;
     }
     body.modal-open{overflow:hidden}
 
@@ -50,13 +59,14 @@
 
     .ornament{
       height:26px;margin:12px auto 6px;max-width:320px;
-      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
+      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y[...]
     }
 
+    /* 只控制倒计时区域的背景图 */
     .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
     .hero .cover{
       position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/bg.jpg') center/cover no-repeat;
+      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/hero-bg.jpg') center/cover no-repeat;
       filter:saturate(1)
     }
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
@@ -160,6 +170,8 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
+  <!-- 整体背景图容器，放在最顶部 -->
+  <div class="main-bg" aria-hidden="true"></div>
   <div class="container">
     <!-- HERO -->
     <section class="hero card" id="home">
@@ -199,17 +211,17 @@
       </div>
     </section>
 
-<!-- 相册 -->
-<section id="gallery">
-  <h2 class="title-serif center">Gallery</h2>
-  <div class="center" style="margin-top:18px">
-    <img 
-      src="images/p1.jpg" 
-      alt="Photo 1"
-      style="width:100%;max-width:740px;height:380px;object-fit:cover;border-radius:28px;box-shadow:0 12px 36px rgba(0,0,0,.08);display:block;margin:auto;"
-    >
-  </div>
-</section>
+    <!-- 相册 -->
+    <section id="gallery">
+      <h2 class="title-serif center">Gallery</h2>
+      <div class="center" style="margin-top:18px">
+        <img 
+          src="images/p1.jpg" 
+          alt="Photo 1"
+          style="width:100%;max-width:740px;height:380px;object-fit:cover;border-radius:28px;box-shadow:0 12px 36px rgba(0,0,0,.08);display:block;margin:auto;"
+        >
+      </div>
+    </section>
 
     <!-- RSVP + Tips -->
     <section id="rsvp">
@@ -252,7 +264,7 @@
           <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
           <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
           <div class="map-actions">
-            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
+            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97"[...]
             <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
           </div>
         </div>
