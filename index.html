@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>我们的婚礼请柬 | Our Wedding Invitation</title>
   <meta name="description" content="网页电子请柬 – 时间、地点、RSVP、相册、地图导航" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
 
   <style>
     :root{
@@ -22,20 +22,8 @@
       font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,
         "Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       line-height:1.7; color:var(--fg);
-      background:var(--bg);
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-      min-height:100vh;
-      position:relative;
-    }
-    /* 整体背景图容器，内容下方 */
-    .main-bg {
       background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
-      min-height:100vh;
-      width:100vw;
-      position:fixed;
-      left:0; top:0;
-      z-index:-1;
-      pointer-events:none;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
     body.modal-open{overflow:hidden}
 
@@ -62,41 +50,23 @@
 
     .ornament{
       height:26px;margin:12px auto 6px;max-width:320px;
-      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y[...]
+      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
     }
 
-    /* HERO 区块专属背景图，带渐变和图片，且有圆角和阴影 */
-    .hero {
-      position:relative;
-      overflow:hidden;
-      border-radius:calc(var(--radius)*1.2);
-      box-shadow:var(--shadow);
-      margin-bottom:36px;
-      background: transparent;
-    }
+    .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
     .hero .cover{
       position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(47,79,79,.36),rgba(47,79,79,.58)),url('images/hero-bg.jpg') center/cover no-repeat;
-      filter:saturate(1);
-      z-index:0;
-      pointer-events:none;
+      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/bg.jpg') center/cover no-repeat;
+      filter:saturate(1)
     }
-    .hero .inner{
-      position:relative;
-      z-index:1;
-      color:#fff;
-      padding:90px 28px;
-      text-align:center;
-      /* 让内容可读性好些 */
-      text-shadow:0 2px 20px rgba(47,79,79,.14),0 1px 1px rgba(47,79,79,.11);
-    }
+    .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
     .couple{font-size:2.75rem;line-height:1.1;font-weight:700}
     .and{font-weight:400;opacity:.9;margin:0 8px}
     .dateplace{margin-top:10px;font-size:1rem;letter-spacing:.04em}
     .scroll-down{margin-top:22px;display:inline-block;font-size:.9rem;opacity:.9}
 
     .countdown{display:flex;justify-content:center;gap:14px;margin-top:18px}
-    .dd{min-width:78px;padding:12px 10px;border-radius:14px;background:rgba(255,255,255,.24);backdrop-filter:blur(4px);color:#222;box-shadow:0 2px 10px rgba(47,79,79,.08);}
+    .dd{min-width:78px;padding:12px 10px;border-radius:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
     .dd strong{display:block;font-size:1.4rem}
 
     .schedule{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
@@ -114,9 +84,11 @@
     .map-card{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:18px}
     .map{aspect-ratio:16/10;border:0;width:100%;border-radius:12px;min-height:300px}
     .map-actions{display:flex;flex-direction:column;gap:10px}
+    /* ▼ NEW: 地图按钮更小，移动端再小一点 */
     .map-actions .btn{width:100%;text-align:center;font-size:14px;padding:10px 14px}
     @media (max-width:480px){ .map-actions .btn{font-size:13px;padding:9px 12px} }
 
+    /* Tips 紧凑样式（保持之前的优化） */
     #tips ul{
       margin:6px 0 8px 0; padding-left:.7em; list-style:disc; list-style-position:inside;
       text-align:left; font-size:12.5px; line-height:1.5;
@@ -126,19 +98,20 @@
       #tips ul{ font-size:12px; line-height:1.45; padding-left:.5em; }
     }
 
+    /* ▼ NEW: 模态弹窗更矮且可滚动 */
     .modal{
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.45); z-index:10000; padding:20px;
-      overscroll-behavior:contain;
+      overscroll-behavior:contain;           /* 防止背景跟随滚动 */
     }
     .modal .panel{
       width:92vw; max-width:720px;
-      max-height:80vh;
+      max-height:80vh;                        /* 更矮，避免“卡住” */
       background:#fff; border-radius:18px; box-shadow:var(--shadow);
       overflow:hidden; display:flex; flex-direction:column;
     }
     .modal header{
-      position:sticky; top:0; z-index:1;
+      position:sticky; top:0; z-index:1;      /* 关闭键始终可见 */
       padding:14px 16px;
       background:linear-gradient(90deg,#f6efe6,#f9f5ef);
       border-bottom:1px solid #eee;
@@ -147,7 +120,7 @@
     .modal h3{margin:0;font-size:1.1rem}
     .modal .close{appearance:none;border:0;background:transparent;font-size:22px;cursor:pointer;line-height:1;padding:6px}
     .modal .content{
-      padding:14px 16px; overflow:auto; -webkit-overflow-scrolling:touch;
+      padding:14px 16px; overflow:auto; -webkit-overflow-scrolling:touch; /* iOS 惯性滚动 */
       flex:1 1 auto;
     }
     .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
@@ -184,14 +157,12 @@
     }
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- 整体背景图容器 -->
-  <div class="main-bg" aria-hidden="true"></div>
   <div class="container">
     <!-- HERO -->
-    <section class="hero" id="home">
+    <section class="hero card" id="home">
       <div class="cover" aria-hidden="true"></div>
       <div class="inner">
         <div class="title-serif" style="font-size:14px;opacity:.9;letter-spacing:.14em">W E D D I N G</div>
@@ -231,12 +202,13 @@
     <!-- 相册 -->
     <section id="gallery">
       <h2 class="title-serif center">Gallery</h2>
-      <div class="center" style="margin-top:18px">
-        <img 
-          src="images/p1.jpg" 
-          alt="Photo 1"
-          style="width:100%;max-width:740px;height:380px;object-fit:cover;border-radius:28px;box-shadow:0 12px 36px rgba(0,0,0,.08);display:block;margin:auto;"
-        >
+      <div class="grid gallery" style="margin-top:18px">
+        <img src="images/p1.jpg" alt="Photo 1">
+        <img src="images/p2.jpg" alt="Photo 2">
+        <img src="images/p3.jpg" alt="Photo 3">
+        <img src="images/p4.jpg" alt="Photo 4">
+        <img src="images/p5.jpg" alt="Photo 5">
+        <img src="images/p6.jpg" alt="Photo 6">
       </div>
     </section>
 
@@ -281,7 +253,7 @@
           <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
           <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
           <div class="map-actions">
-            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97"[...]
+            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
             <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
           </div>
         </div>
@@ -313,6 +285,7 @@
   </button>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <!-- 午宴菜单模态弹窗 -->
   <div id="menuModal" class="modal" aria-hidden="true" aria-modal="true" role="dialog" aria-labelledby="menuTitle">
     <div class="panel">
       <header>
