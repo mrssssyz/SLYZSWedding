@@ -10,7 +10,7 @@
   <style>
     :root{
       --bg:#f5f1eb; --card:#fff; --fg:#1a1a1a; --muted:#6f7278;
-      --brand:#2f4f4f; --brand-2:#b08a68;
+      --brand:#2f4f4f; --brand-2:#b08a68; /* 香槟色 */
       --radius:22px; --shadow:0 12px 36px rgba(0,0,0,.08);
     }
     *{box-sizing:border-box}
@@ -22,7 +22,7 @@
       font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,
         "Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
       line-height:1.7; color:var(--fg);
-      background:var(--bg); /* 背景色作为兜底 */
+      background:var(--bg); /* 背景色兜底 */
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
     body.modal-open{overflow:hidden}
@@ -43,10 +43,13 @@
       pointer-events:none;
     }
 
-    h1,h2,h3{margin:0 0 16px;line-height:1.3;color: var(--brand-2);}
-    h1{font-size:2.5rem}
-    h2{font-size:1.75rem}
-    h3{font-size:1.125rem}
+    /* === 全站标题：香槟色粗体 === */
+    h1,h2,h3{
+      margin:0 0 16px; line-height:1.3;
+      font-weight:800;              /* 更粗一些，便于识别 */
+      color:var(--brand-2);         /* 香槟色 */
+      text-shadow:0 1px 1px rgba(0,0,0,.15); /* 在复杂背景上更清晰 */
+    }
     p{margin:0 0 0.8em}
     small,.muted{color:var(--muted)}
     .title-serif{
@@ -69,20 +72,27 @@
       background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
     }
 
+    /* === HERO 保留原有 time.jpg 覆盖图 === */
     .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
     .hero .cover{
       position:absolute;inset:0;
-      /* 原图背景改为透明，由底层视频负责背景 */
-      background:transparent;
+      /* 恢复 time.jpg + 渐变，确保在 card 白底之上仍有背景图 */
+      background:
+        linear-gradient(180deg, rgba(47,79,79,.35), rgba(47,79,79,.55)),
+        url('images/time.jpg') center/cover no-repeat;
     }
     .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
     .couple{font-size:2.75rem;line-height:1.1;font-weight:700}
     .and{font-weight:400;opacity:.9;margin:0 8px}
     .dateplace{margin-top:10px;font-size:1rem;letter-spacing:.04em}
-    .scroll-down{margin-top:22px;display:inline-block;font-size:.9rem;opacity:.9}
+    .scroll-down{margin-top:22px;display:inline-block;font-size:.9rem;opacity:.9;color:#fff;text-decoration:none}
 
     .countdown{display:flex;justify-content:center;gap:14px;margin-top:18px}
-    .dd{min-width:78px;padding:12px 10px;border-radius:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
+    .dd{
+      min-width:78px;padding:12px 10px;border-radius:14px;
+      background:rgba(0,0,0,.35); /* 加深底色，保证数字可读 */
+      backdrop-filter:blur(4px); color:#fff;
+    }
     .dd strong{display:block;font-size:1.4rem}
 
     .schedule{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
@@ -134,7 +144,7 @@
       .modal .content{padding:12px 14px}
     }
 
-    /* 右下角：控制 MV 声音的按钮（仅此一个） */
+    /* 右下角：控制 MV 声音的按钮 */
     .music-fab{
       position:fixed; right:16px; bottom:16px; z-index:9999;
       width:54px; height:54px; border-radius:999px;
@@ -159,7 +169,7 @@
 </head>
 <body>
 
-  <!-- 背景 MV（使用你提供的 GitHub 路径） -->
+  <!-- 背景 MV -->
   <div class="bgmv-wrap" aria-hidden="true">
     <video id="bgmv" class="bgmv"
       src="images/BgLoad.mp4"
@@ -169,27 +179,25 @@
   <div class="bg-scrim" aria-hidden="true"></div>
 
   <div class="container">
+    <!-- HERO（保留 card 外观 + 覆盖图 time.jpg） -->
+    <section class="hero card reveal" id="home">
+      <div class="cover" aria-hidden="true"></div>
+      <div class="inner">
+        <div class="title-serif" style="font-size:14px;opacity:.9;letter-spacing:.14em;color:#fff">W E D D I N G</div>
+        <h1 class="couple title-serif">宋禹洲 <span class="and">&</span> 骆沙</h1>
+        <div class="ornament" aria-hidden="true"></div>
+        <div class="dateplace" style="color:#fff">2025年10月19日 上午10:58 · 吉林省长春市 香格里拉酒店</div>
 
-<!-- HERO -->
-<section class="hero reveal" id="home">
-  <div class="cover" aria-hidden="true"></div>
-  <div class="inner">
-    <div class="title-serif" style="font-size:14px;opacity:.9;letter-spacing:.14em">W E D D I N G</div>
-    <h1 class="couple title-serif">宋禹洲 <span class="and">&</span> 骆沙</h1>
-    <div class="ornament" aria-hidden="true"></div>
-    <div class="dateplace">2025年10月19日 上午10:58 · 吉林省长春市 香格里拉酒店</div>
+        <div class="countdown" role="timer" aria-live="polite">
+          <div class="dd"><strong id="dday">--</strong><span>天</span></div>
+          <div class="dd"><strong id="dh">--</strong><span>小时</span></div>
+          <div class="dd"><strong id="dm">--</strong><span>分钟</span></div>
+          <div class="dd"><strong id="ds">--</strong><span>秒</span></div>
+        </div>
 
-    <div class="countdown" role="timer" aria-live="polite">
-      <div class="dd"><strong id="dday">--</strong><span>天</span></div>
-      <div class="dd"><strong id="dh">--</strong><span>小时</span></div>
-      <div class="dd"><strong id="dm">--</strong><span>分钟</span></div>
-      <div class="dd"><strong id="ds">--</strong><span>秒</span></div>
-    </div>
-
-    <a class="scroll-down" href="#rsvp">↓ 立即回复 RSVP</a>
-  </div>
-</section>
-
+        <a class="scroll-down" href="#rsvp">↓ 立即回复 RSVP</a>
+      </div>
+    </section>
 
     <!-- 简短寄语 -->
     <section class="center reveal">
@@ -272,7 +280,7 @@
     </footer>
   </div>
 
-  <!-- 仅保留一个按钮：控制 MV 静音/开声 -->
+  <!-- 右下角：控制 MV 静音/开声 -->
   <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
     <svg class="play-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor" opacity=".9"/>
@@ -287,7 +295,7 @@
   </button>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <!-- 午宴菜单模态弹窗（原样保留） -->
+  <!-- 午宴菜单模态弹窗 -->
   <div id="menuModal" class="modal" aria-hidden="true" aria-modal="true" role="dialog" aria-labelledby="menuTitle">
     <div class="panel">
       <header>
@@ -367,9 +375,9 @@
         for(let i=1;i<=steps;i++){video.volume=start+(targetVol-start)*i/steps;await new Promise(r=>setTimeout(r,dt));}
       }
 
-      // 初始策略：静音自动播放（移动端/微信的通用要求）
+      // 初始：静音自动播（兼容移动端/微信）
       video.muted = true; video.volume = 1;
-      // 若用户曾经开过声，首次交互时自动开声并淡入
+      // 若用户曾开过声，首次交互自动淡入开声
       if(localStorage.getItem(KEY)==='on'){
         const first=async()=>{ try{ await video.play(); video.muted=false; video.volume=0; await fadeTo(1,700); }catch(e){}; updateFab(); remove(); }
         const remove=()=>['touchstart','click','keydown'].forEach(t=>window.removeEventListener(t,first,true))
@@ -390,7 +398,7 @@
       });
       fab.addEventListener('keydown', e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fab.click();}});
 
-      // ===== 地图（原样）=====
+      // ===== 地图 =====
       const el = document.getElementById('leaflet-map');
       if(el){
         const lat = 43.892416, lng = 125.312401;
@@ -410,7 +418,7 @@
       menuModal.addEventListener('click', (e)=>{ if(e.target===menuModal) closeMenu(); });
       window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMenu(); });
 
-      // ===== 滚动渐入：给需要淡入的块加 .reveal 类（上面已加）=====
+      // ===== 滚动渐入 =====
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(e=>{
           if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
