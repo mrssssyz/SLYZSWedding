@@ -213,20 +213,38 @@
     }
 
     /* 方案三：HERO 囍印章（低调角标） */
-    .double-happiness{
-      position:absolute; right:14px; top:14px; z-index:2;
-      width:66px; height:66px; border-radius:50%;
-      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
-                  #b51212;
-      box-shadow:0 8px 18px rgba(181,18,18,.25);
-      display:grid; place-items:center;
-    }
-    .double-happiness svg{ width:42px; height:42px; }
+
+/* 右上角：自动旋转红色爱心角标 */
+.corner-heart{
+  position:absolute; right:14px; top:14px; z-index:2;
+  width:66px; height:66px; display:grid; place-items:center;
+  /* 可选的柔光圆底，让爱心在复杂背景上更清晰 */
+  border-radius:50%;
+  background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%);
+  filter: drop-shadow(0 8px 18px rgba(181,18,18,.28));
+  animation: spin 12s linear infinite;
+}
+.corner-heart svg{
+  width:44px; height:44px;
+  fill:#d81d1d;                      /* 红色爱心主体 */
+  stroke:#ffdddd; stroke-width:.8px; /* 淡淡描边，提清晰度 */
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+}
+@keyframes spin{
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
+}
+/* 关怀：若用户偏好减少动画，则不旋转 */
+@media (prefers-reduced-motion: reduce){
+  .corner-heart{ animation:none; }
+}
+
+    
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
-<body data-theme="red">
+<body>
   <!-- 若要启用红金主题，把 body 改成：<body data-theme="red"> -->
 
   <!-- 背景 MV -->
@@ -241,13 +259,15 @@
   <div class="container">
     <!-- HERO（保留 card 外观 + 覆盖图 time1.jpg） -->
     <section class="hero card reveal" id="home">
-      <!-- 囍印章角标 -->
-      <div class="double-happiness" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none">
-          <path d="M10 16h44M10 32h44M10 48h44 M20 10v44M32 10v44M44 10v44"
-                stroke="#D9B16C" stroke-width="4" stroke-linecap="square"/>
-        </svg>
-      </div>
+
+<!-- 右上角：自动旋转红色爱心 -->
+<div class="corner-heart" aria-hidden="true" title="Love">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <!-- 简洁、圆润的心形路径 -->
+    <path d="M12 21s-6.6-4.2-9.4-7C1.2 12.6.7 9.8 2.3 8.2c1.3-1.3 3.5-1.3 4.8 0L12 13l4.9-4.8c1.3-1.3 3.5-1.3 4.8 0 1.6 1.6 1.1 4.4-.3 5.8-2.8 2.8-9.4 7-9.4 7z"/>
+  </svg>
+</div>
+
 
       <div class="cover" aria-hidden="true"></div>
       <div class="inner">
@@ -281,7 +301,7 @@
       <h2 class="title-serif center">婚礼日程 · Schedule</h2>
       <div class="grid schedule" style="margin-top:18px">
         <div class="item card"><h3>宾客入场</h3><div class="muted">10:45 前 · 香格里拉酒店</div><p>请宾客提前入场就座</p></div>
-        <div class="item card"><h3>典礼 / 午宴</h3><div class="muted">10:58 – 14:00 · 宴会厅</div><p>典礼、午宴与亲友庆祝</p></div>
+        <div class="item card"><h3>典礼 / 午宴</h3><div class="muted">10:58 – 14:00 · 宴会厅</div><p>典礼进行、午宴时间</p></div>
       </div>
       <div class="center" style="margin-top:18px">
         <button id="menuBtn" class="btn ghost">午宴菜单</button>
@@ -319,7 +339,7 @@
           <h3 class="title-serif" style="margin-bottom:10px">Tips</h3>
           <ul>
             <li>婚礼主题为香槟色，请宾客根据现场主题合理自行搭配穿搭。</li>
-            <li>由于酒店未提供菜品与酒水的过敏原说明，请宾客自行确认对婚宴菜单中包含的食物与酒水是否过敏，避免摄入过敏食物。</li>
+            <li>由于酒店未提供菜单所涉及食物与酒水的过敏原说明，请宾客根据自身过敏原，避免摄入会造成过敏的食物。</li>
             <li>酒店内停车场车满后请移步香格里拉酒店对面万达广场。</li>
             <li>礼金可现场递交给男女方或其直系亲属，或扫码转账。</li>
           </ul>
