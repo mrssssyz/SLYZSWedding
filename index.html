@@ -169,11 +169,65 @@
     /* ===== 滚动渐入 ===== */
     .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease}
     .reveal.in{opacity:1; transform:none}
+
+    /* ========= 方案一：红金主题（可选） ========= */
+    :root[data-theme="red"]{
+      --bg:#fff8f4;
+      --card:#ffffff;
+      --fg:#1a1a1a;
+      --muted:#7b7e85;
+      --brand:#8a1111;     /* 主红（按钮等） */
+      --brand-2:#d9b16c;   /* 标题金色 */
+      --ring:#c41d1d;
+      --gold:#d8b77f;
+    }
+    :root[data-theme="red"] .card{
+      border:1px solid rgba(196,29,29,.12);
+      box-shadow:0 12px 36px rgba(138,17,17,.06);
+    }
+    :root[data-theme="red"] .btn{
+      background:var(--brand);
+      border-color:rgba(0,0,0,.06);
+    }
+    :root[data-theme="red"] .btn:hover{
+      filter:none; transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(138,17,17,.18);
+    }
+    :root[data-theme="red"] .btn.ghost{
+      background:#fff; color:var(--brand); border:1px solid rgba(196,29,29,.25);
+    }
+    /* 方案二：红金 ornament（随红金主题自动切换） */
+    :root[data-theme="red"] .ornament{
+      background:center/contain no-repeat
+        url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="UTF-8"?>\
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26">\
+  <defs>\
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="0">\
+      <stop stop-color="%23c41d1d"/><stop offset="1" stop-color="%23d9b16c"/>\
+    </linearGradient>\
+  </defs>\
+  <path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/>\
+  <path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/>\
+  <path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/>\
+</svg>');
+    }
+
+    /* 方案三：HERO 囍印章（低调角标） */
+    .double-happiness{
+      position:absolute; right:14px; top:14px; z-index:2;
+      width:66px; height:66px; border-radius:50%;
+      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
+                  #b51212;
+      box-shadow:0 8px 18px rgba(181,18,18,.25);
+      display:grid; place-items:center;
+    }
+    .double-happiness svg{ width:42px; height:42px; }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
+  <!-- 若要启用红金主题，把 body 改成：<body data-theme="red"> -->
 
   <!-- 背景 MV -->
   <div class="bgmv-wrap" aria-hidden="true">
@@ -187,6 +241,14 @@
   <div class="container">
     <!-- HERO（保留 card 外观 + 覆盖图 time1.jpg） -->
     <section class="hero card reveal" id="home">
+      <!-- 囍印章角标 -->
+      <div class="double-happiness" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M10 16h44M10 32h44M10 48h44 M20 10v44M32 10v44M44 10v44"
+                stroke="#D9B16C" stroke-width="4" stroke-linecap="square"/>
+        </svg>
+      </div>
+
       <div class="cover" aria-hidden="true"></div>
       <div class="inner">
         <div class="title-serif kicker" style="font-size:14px;opacity:.9;letter-spacing:.14em;color:#fff">W E D D I N G</div>
