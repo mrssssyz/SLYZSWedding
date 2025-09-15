@@ -239,6 +239,25 @@
   .corner-heart{ animation:none; }
 }
 
+    /* 花瓣雨 */
+.petals{
+  position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:5000;
+}
+.petal{ position:absolute; top:-12vh; left:var(--l); animation:fall var(--dur) linear var(--delay) infinite; }
+.petal > span{
+  display:block; width:14px; height:12px;
+  background: radial-gradient(35% 45% at 30% 30%, #ffd1dc, #ff9bb2 60%, #e64a6a 100%);
+  border-radius:60% 40% 60% 40% / 60% 60% 40% 40%;
+  opacity:.85; filter:blur(.2px); transform-origin:50% 60%;
+  animation: sway calc(var(--dur)*.9) ease-in-out var(--delay) infinite alternate,
+             spin calc(var(--dur)*.6) linear var(--delay) infinite;
+}
+@keyframes fall{ to{ transform: translateY(120vh); } }
+@keyframes sway{ from{ transform: translateX(-14px) rotate(-12deg);} to{ transform: translateX(14px) rotate(12deg);} }
+@keyframes spin{ to{ transform: rotate(360deg);} }
+/* 低动画偏好时自动关闭 */
+@media (prefers-reduced-motion: reduce){ .petals{ display:none; } }
+
     
   </style>
 
@@ -255,6 +274,9 @@
     </video>
   </div>
   <div class="bg-scrim" aria-hidden="true"></div>
+
+  <!-- 花瓣雨（可选装饰） -->
+  <div class="petals" aria-hidden="true"></div>
 
   <div class="container">
     <!-- HERO（保留 card 外观 + 覆盖图 time1.jpg） -->
@@ -516,6 +538,24 @@
         });
       },{threshold:.12});
       document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// 生成少量花瓣（轻量）
+const petalsBox = document.querySelector('.petals');
+if (petalsBox){
+  const N = 18; // 数量可调，10~24 较稳妥
+  for(let i=0;i<N;i++){
+    const d = document.createElement('div');
+    d.className = 'petal';
+    d.style.setProperty('--l', Math.random()*100 + 'vw');
+    d.style.setProperty('--dur', (9 + Math.random()*6) + 's');
+    d.style.setProperty('--delay', (-Math.random()*9) + 's');
+    const s = document.createElement('span');
+    d.appendChild(s);
+    petalsBox.appendChild(d);
+  }
+}
+
+      
     });
   </script>
 </body>
