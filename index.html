@@ -1,411 +1,87 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>我们的婚礼请柬 | Our Wedding Invitation</title>
-  <meta name="description" content="网页电子请柬 – 时间、地点、RSVP、相册、地图导航" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+// 云函数入口文件（CloudBase Node 18）
+// 安装依赖：axios
+// tcb console 中配置环境变量：FEISHU_APP_ID, FEISHU_APP_SECRET, FEISHU_BASE_ID, FEISHU_TABLE_ID
 
-  <style>
-    :root{
-      --bg:#f5f1eb; --card:#fff; --fg:#1a1a1a; --muted:#6f7278;
-      --brand:#2f4f4f; --brand-2:#b08a68;
-      --radius:22px; --shadow:0 12px 36px rgba(0,0,0,.08);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    html{font-size:16px}
-    @media (max-width:480px){html{font-size:15.5px}}
-    body{
-      margin:0;
-      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,
-        "Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
-      line-height:1.7; color:var(--fg);
-      background:linear-gradient(rgba(245,241,235,.92),rgba(245,241,235,.92)),url('images/bg.jpg') center/cover no-repeat;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
-    body.modal-open{overflow:hidden}
+const axios = require('axios');
 
-    h1,h2,h3{margin:0 0 16px;line-height:1.3}
-    h1{font-size:2.5rem}
-    h2{font-size:1.75rem}
-    h3{font-size:1.125rem}
-    p{margin:0 0 0.8em}
-    small,.muted{color:var(--muted)}
-    .title-serif{
-      font-family: "Noto Serif SC","Songti SC","STSong","Source Han Serif SC",
-        "Hiragino Mincho ProN","Yu Mincho","SimSun",Georgia,"Times New Roman",serif;
-      letter-spacing:.02em
+exports.main = async (event, context) => {
+  // 处理预检 CORS
+  if (event.method === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: corsHeaders(),
+      body: ''
+    };
+  }
+
+  try {
+    const body = JSON.parse(event.body || '{}');
+    const { name, phone, attend, pax, diet, note } = body;
+
+    if (!name || !phone || !attend || !pax) {
+      return json({ ok:false, msg:'参数不完整' }, 400);
     }
 
-    .container{max-width:1040px;margin:0 auto;padding:24px}
-    section{padding:48px 0}
-    .btn{display:inline-block;padding:12px 20px;border-radius:999px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)}
-    .btn:hover{filter:brightness(0.96)}
-    .btn.ghost{background:#fff;color:var(--brand);border:1px solid rgba(0,0,0,.14)}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .grid{display:grid;gap:20px}
-    .center{text-align:center}
+    // 获取 tenant_access_token
+    const token = await getTenantToken();
 
-    .ornament{
-      height:26px;margin:12px auto 6px;max-width:320px;
-      background:center/contain no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop stop-color="%23b08a68"/><stop offset="1" stop-color="%238f7355"/></linearGradient></defs><path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
-    }
-
-    .hero{position:relative;overflow:hidden;border-radius:calc(var(--radius)*1.2)}
-    .hero .cover{
-      position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(47,79,79,.35),rgba(47,79,79,.55)),url('images/time.jpg') center/cover no-repeat; /* CHANGED: hero 使用 time.jpg */
-      filter:saturate(1)
-    }
-    .hero .inner{position:relative;z-index:1;color:#fff;padding:90px 28px;text-align:center}
-    .couple{font-size:2.75rem;line-height:1.1;font-weight:700}
-    .and{font-weight:400;opacity:.9;margin:0 8px}
-    .dateplace{margin-top:10px;font-size:1rem;letter-spacing:.04em}
-    .scroll-down{margin-top:22px;display:inline-block;font-size:.9rem;opacity:.9}
-
-    .countdown{display:flex;justify-content:center;gap:14px;margin-top:18px}
-    .dd{min-width:78px;padding:12px 10px;border-radius:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px)}
-    .dd strong{display:block;font-size:1.4rem}
-
-    .schedule{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-    .schedule .item{padding:18px}
-    .schedule .item h3{font-size:1.05rem;margin-bottom:6px}
-
-    /* === Gallery 样式调整：在原图基础上按终端合理缩小，且不裁切 === */
-    .gallery{
-      grid-template-columns:1fr;                 /* CHANGED: 单列展示，便于居中与控制 */
-      justify-items:center;                      /* CHANGED: 图片在容器中水平居中 */
-    }
-    .gallery img{
-      display:block;
-      width:auto;                                /* CHANGED: 以原始宽度为基础，不主动放大 */
-      height:auto;                               /* CHANGED: 保持原始比例 */
-      max-width:min(100%, 900px);                /* CHANGED: 桌面端上限不超过容器/900px */
-      max-height:70vh;                           /* CHANGED: 桌面端高度不超过视口70% */
-      object-fit:contain;                        /* CHANGED: 不裁切，完整显示整张照片 */
-      border-radius:14px;
-    }
-    @media (max-width:720px){
-      .gallery img{
-        max-width:92vw;                          /* CHANGED: 移动端按视口宽度收缩 */
-        max-height:60vh;                         /* CHANGED: 减少占屏，避免遮挡内容 */
+    // 组装写入记录（根据你飞书表格的字段名调整）
+    const record = {
+      fields: {
+        姓名: name,
+        手机: phone,
+        出席: attend === 'yes' ? '出席' : '不出席',
+        人数: pax,
+        饮食备注: diet || '',
+        留言: note || '',
+        提交时间: new Date().toISOString()
       }
-    }
+    };
 
-    .rsvp{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
-    .rsvp-embed{width:100%;height:560px;border:0;border-radius:12px;box-shadow:var(--shadow);background:#fff}
-    .rsvp-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .rsvp-actions .btn{flex:1;min-width:220px;text-align:center}
+    const baseId  = process.env.FEISHU_BASE_ID;
+    const tableId = process.env.FEISHU_TABLE_ID;
 
-    .map-card{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:18px}
-    .map{aspect-ratio:16/10;border:0;width:100%;border-radius:12px;min-height:300px}
-    .map-actions{display:flex;flex-direction:column;gap:10px}
-    /* ▼ 地图按钮更小，移动端再小一点 */
-    .map-actions .btn{width:100%;text-align:center;font-size:14px;padding:10px 14px}
-    @media (max-width:480px){ .map-actions .btn{font-size:13px;padding:9px 12px} }
-
-    /* Tips 紧凑样式 */
-    #tips ul{
-      margin:6px 0 8px 0; padding-left:.7em; list-style:disc; list-style-position:inside;
-      text-align:left; font-size:12.5px; line-height:1.5;
-    }
-    #tips li{ margin:3px 0; }
-    @media (max-width:480px){
-      #tips ul{ font-size:12px; line-height:1.45; padding-left:.5em; }
-    }
-
-    /* 模态弹窗更矮且可滚动 */
-    .modal{
-      position:fixed; inset:0; display:none; place-items:center;
-      background:rgba(0,0,0,.45); z-index:10000; padding:20px;
-      overscroll-behavior:contain;
-    }
-    .modal .panel{
-      width:92vw; max-width:720px;
-      max-height:80vh;
-      background:#fff; border-radius:18px; box-shadow:var(--shadow);
-      overflow:hidden; display:flex; flex-direction:column;
-    }
-    .modal header{
-      position:sticky; top:0; z-index:1;
-      padding:14px 16px;
-      background:linear-gradient(90deg,#f6efe6,#f9f5ef);
-      border-bottom:1px solid #eee;
-      display:flex; align-items:center; justify-content:space-between; flex:0 0 auto;
-    }
-    .modal h3{margin:0;font-size:1.1rem}
-    .modal .close{appearance:none;border:0;background:transparent;font-size:22px;cursor:pointer;line-height:1;padding:6px}
-    .modal .content{
-      padding:14px 16px; overflow:auto; -webkit-overflow-scrolling:touch;
-      flex:1 1 auto;
-    }
-    .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
-    .menu-grid li{padding:6px 0;border-bottom:1px dashed #eee}
-    .menu-subtitle{margin:6px 0 4px;font-weight:700;color:#8f7355}
-    @media (max-width:720px){
-      .rsvp{grid-template-columns:1fr}
-      .couple{font-size:2.25rem}
-      .hero .inner{padding:70px 22px}
-      /* .gallery img 的移动端尺寸限制已在上方媒体查询中设置 */
-      .rsvp-embed{height:600px}
-      .menu-grid{grid-template-columns:1fr}
-      .modal .panel{width:94vw; max-height:85vh; border-radius:16px}
-      .modal .content{padding:12px 14px}
-    }
-
-    .music-fab{
-      position:fixed; right:16px; bottom:16px; z-index:9999;
-      width:54px; height:54px; border-radius:999px;
-      display:flex; align-items:center; justify-content:center;
-      background:var(--brand); color:#fff; box-shadow:var(--shadow);
-      border:1px solid rgba(0,0,0,.08); cursor:pointer;
-    }
-    .music-fab svg{width:24px;height:24px;display:block}
-    .music-fab .muted-icon{display:none}
-    .music-fab.is-muted .muted-icon{display:block}
-    .music-fab.is-muted .play-icon{display:none}
-    .music-fab:focus-visible{outline:3px solid rgba(176,138,104,.6); outline-offset:2px}
-
-    .toast{
-      position:fixed; left:50%; bottom:84px; transform:translateX(-50%);
-      background:rgba(0,0,0,.76); color:#fff; padding:10px 14px; border-radius:999px;
-      font-size:13px; z-index:9999; display:none;
-    }
-  </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-</head>
-<body>
-  <div class="container">
-    <!-- HERO -->
-    <section class="hero card" id="home">
-      <div class="cover" aria-hidden="true"></div>
-      <div class="inner">
-        <div class="title-serif" style="font-size:14px;opacity:.9;letter-spacing:.14em">W E D D I N G</div>
-        <h1 class="couple title-serif">宋禹洲 <span class="and">&</span> 骆沙</h1>
-        <div class="ornament" aria-hidden="true"></div>
-        <div class="dateplace">2025年10月19日 上午10:58 · 吉林省长春市 香格里拉酒店</div>
-
-        <div class="countdown" role="timer" aria-live="polite">
-          <div class="dd"><strong id="dday">--</strong><span>天</span></div>
-          <div class="dd"><strong id="dh">--</strong><span>小时</span></div>
-          <div class="dd"><strong id="dm">--</strong><span>分钟</span></div>
-          <div class="dd"><strong id="ds">--</strong><span>秒</span></div>
-        </div>
-
-        <a class="scroll-down" href="#rsvp">↓ 立即回复 RSVP</a>
-      </div>
-    </section>
-
-    <!-- 简短寄语 -->
-    <section class="center">
-      <p class="muted">We joyfully invite you to celebrate our wedding. 期待与您共享这一刻。</p>
-      <a href="#details" class="btn">查看详细信息</a>
-    </section>
-
-    <!-- 日程 -->
-    <section id="details">
-      <h2 class="title-serif center">婚礼日程 · Schedule</h2>
-      <div class="grid schedule" style="margin-top:18px">
-        <div class="item card"><h3>宾客入场</h3><div class="muted">10:45 前 · 香格里拉酒店</div><p>请宾客提前入场就座</p></div>
-        <div class="item card"><h3>典礼 / 午宴</h3><div class="muted">10:58 – 14:00 · 宴会厅</div><p>典礼、午宴与亲友庆祝</p></div>
-      </div>
-      <div class="center" style="margin-top:18px">
-        <button id="menuBtn" class="btn ghost">午宴菜单</button>
-      </div>
-    </section>
-
-    <!-- 相册 -->
-    <section id="gallery">
-      <h2 class="title-serif center">Gallery</h2>
-      <div class="grid gallery" style="margin-top:18px">
-        <!-- CHANGED: 仅在容器/终端尺寸不足时自动缩小，不再裁切或拉伸 -->
-        <img src="images/p1.jpg" alt="Photo 1" loading="lazy">
-      </div>
-    </section>
-
-    <!-- RSVP + Tips -->
-    <section id="rsvp">
-      <h2 class="title-serif center">宾客回执 · RSVP</h2>
-      <div class="rsvp" style="margin-top:18px">
-        <div class="card" style="padding:18px">
-          <h3 class="title-serif" style="margin-bottom:10px">请填写您的出席信息</h3>
-          <iframe
-            class="rsvp-embed"
-            src="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg"
-            title="Wedding RSVP 表单"
-            allow="clipboard-write"
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-          <div class="rsvp-actions" style="margin-top:12px">
-            <a class="btn" target="_blank" rel="noopener" href="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg">在飞书中打开（推荐）</a>
-          </div>
-          <p class="muted" style="margin-top:10px;font-size:13px">如遇加载问题，请点击“在飞书中打开”。</p>
-        </div>
-
-        <div class="card" style="padding:18px" id="tips">
-          <h3 class="title-serif" style="margin-bottom:10px">Tips</h3>
-          <ul>
-            <li>婚礼主题为香槟色，请宾客根据现场主题合理自行搭配穿搭。</li>
-            <li>由于酒店未提供菜品与酒水的过敏原说明，请宾客自行确认对婚宴菜单中包含的食物与酒水是否过敏，避免摄入过敏食物。</li>
-            <li>酒店内停车场车满后请移步香格里拉酒店对面万达广场。</li>
-            <li>礼金可现场递交给男女方或其直系亲属，或扫码转账。</li>
-          </ul>
-          <a class="btn" href="#map">查看地图与导航</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 地点与交通 -->
-    <section id="map">
-      <h2 class="title-serif center">地点与交通 · Venue</h2>
-      <div class="card map-card" style="margin-top:18px">
-        <div>
-          <h3>吉林省长春市 · 香格里拉酒店</h3>
-          <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
-          <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
-          <div class="map-actions">
-            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
-            <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
-          </div>
-        </div>
-        <div id="leaflet-map" class="map"></div>
-      </div>
-    </section>
-
-    <footer class="center">
-      <div>感谢见证我们的幸福时刻 · With love, Yuzhou & Sha</div>
-      <div style="margin-top:6px" class="muted">© <span id="year"></span> Our Wedding</div>
-    </footer>
-  </div>
-
-  <audio id="bgm" preload="auto" loop playsinline muted>
-    <source src="music/bgm.mp3" type="audio/mpeg">
-  </audio>
-
-  <button id="musicFab" class="music-fab is-muted" aria-label="开启音乐" title="开启音乐">
-    <svg class="play-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor" opacity=".9"/>
-      <path d="M13 5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M13 5l7-2v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M18.5 14.5c1 .8 1.5 1.6 1.5 2.5s-.5 1.7-1.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/>
-    </svg>
-    <svg class="muted-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 10h3l5-4v12l-5-4H4z" fill="currentColor" />
-      <path d="M16 9l5 5M21 9l-5 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <!-- 午宴菜单模态弹窗 -->
-  <div id="menuModal" class="modal" aria-hidden="true" aria-modal="true" role="dialog" aria-labelledby="menuTitle">
-    <div class="panel">
-      <header>
-        <h3 id="menuTitle" class="title-serif">午宴菜单 · 香格里拉</h3>
-        <button class="close" aria-label="关闭" id="menuClose">×</button>
-      </header>
-      <div class="content">
-        <div class="menu-subtitle">吉庆六彩碟</div>
-        <ul class="menu-grid">
-          <li>泡椒藕芽</li><li>冰糖蜜枣</li><li>虫草花脆笋</li>
-          <li>香醋海蜇</li><li>红油凤爪</li><li>松仁小肚</li>
-        </ul>
-
-        <div class="menu-subtitle">热菜 & 主食</div>
-        <ul class="menu-grid">
-          <li>满堂喜庆 · 广式烧味大拼盘</li>
-          <li>如意吉祥 · 金枕玉饺焗大龙虾</li>
-          <li>宏图大展 · 姜香海参烧花胶</li>
-          <li>富贵有余 · 鲜露葱油虎石斑鱼</li>
-          <li>喜结连理 · 金蒜银丝蒸鲍鱼</li>
-          <li>幸福美满 · 蒜片菌香谷饲牛肉</li>
-          <li>浓情蜜意 · 竹笙瑶柱海皇羹</li>
-          <li>金鸡报喜 · 精选飘香清远鸡</li>
-          <li>满掌元宝 · 翡翠东坡状元肘</li>
-          <li>金枝玉叶 · 锦绣蛋丝四喜丸</li>
-          <li>吉祥芙蓉 · 香菇扒供港芥兰</li>
-          <li>心心相印 · 鲜虾黄金香炒饭</li>
-          <li>百年好合 · 红糖爆浆脆糍粑</li>
-          <li>锦上添花 · 满盘佳果水果拼</li>
-        </ul>
-        <p class="muted" style="margin-top:8px">* 菜名仅供参考。</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      const targetUTC = new Date(Date.UTC(2025, 9, 19, 2, 58, 0));
-      const dEl = document.getElementById('dday'),
-            hEl = document.getElementById('dh'),
-            mEl = document.getElementById('dm'),
-            sEl = document.getElementById('ds');
-      function renderCountdown(){
-        const now = new Date();
-        let diff = Math.max(0, targetUTC.getTime() - now.getTime());
-        const d = Math.floor(diff / 86400000); diff -= d*86400000;
-        const h = Math.floor(diff / 3600000);  diff -= h*3600000;
-        const m = Math.floor(diff / 60000);    diff -= m*60000;
-        const s = Math.floor(diff / 1000);
-        dEl.textContent = String(d).padStart(2,'0');
-        hEl.textContent = String(h).padStart(2,'0');
-        mEl.textContent = String(m).padStart(2,'0');
-        sEl.textContent = String(s).padStart(2,'0');
-      }
-      renderCountdown(); setInterval(renderCountdown, 1000);
-
-      const audio = document.getElementById('bgm');
-      const fab   = document.getElementById('musicFab');
-      const toast = document.getElementById('toast');
-      const KEY = 'bgm_pref_v1';
-      function showToast(msg){toast.textContent=msg;toast.style.display='block';setTimeout(()=>toast.style.display='none',1600)}
-      function updateFab(){
-        if(audio.muted||audio.paused){fab.classList.add('is-muted');fab.setAttribute('aria-label','开启音乐');fab.title='开启音乐';}
-        else{fab.classList.remove('is-muted');fab.setAttribute('aria-label','关闭音乐');fab.title='关闭音乐';}
-      }
-      async function fadeTo(targetVol=1, ms=500){
-        const steps=20,dt=ms/steps,start=audio.volume;
-        for(let i=1;i<=steps;i++){audio.volume=start+(targetVol-start)*i/steps;await new Promise(r=>setTimeout(r,dt));}
-      }
-      async function play(unmute=false){
-        try{ if(unmute){audio.muted=false;audio.volume=0;}
-          const p=audio.play(); if(p&&p.then) await p; if(unmute) await fadeTo(1,600);
-          updateFab(); localStorage.setItem(KEY, audio.muted?'off':'on');
-        }catch(e){ audio.muted=true; updateFab(); showToast('点击右下角开启音乐'); }
-      }
-      audio.muted=true; audio.volume=1; play(false);
-      if(localStorage.getItem(KEY)==='on'){
-        const first=()=>{play(true);remove()}
-        const remove=()=>{['touchstart','click','keydown'].forEach(t=>window.removeEventListener(t,first,true))}
-        ;['touchstart','click','keydown'].forEach(t=>window.addEventListener(t,first,true))
-      }
-      fab.addEventListener('click', async ()=>{
-        if(audio.paused||audio.muted){await play(true);}else{audio.pause();audio.muted=true;updateFab();localStorage.setItem(KEY,'off');}
-      });
-      fab.addEventListener('keydown', e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fab.click();}});
-
-      const el = document.getElementById('leaflet-map');
-      if(el){
-        const lat = 43.892416, lng = 125.312401;
-        const map = L.map(el, { scrollWheelZoom:false }).setView([lat, lng], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OSM contributors' }).addTo(map);
-        L.marker([lat, lng]).addTo(map).bindPopup('吉林省长春市 香格里拉酒店<br/>西安大路569号（人民广场附近）').openPopup();
-      }
-
-      const y = document.getElementById('year'); if(y) y.textContent = new Date().getFullYear();
-
-      const menuBtn = document.getElementById('menuBtn');
-      const menuModal = document.getElementById('menuModal');
-      const menuClose = document.getElementById('menuClose');
-      function openMenu(){menuModal.style.display='grid';menuModal.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');}
-      function closeMenu(){menuModal.style.display='none';menuModal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');}
-      menuBtn.addEventListener('click', openMenu);
-      menuClose.addEventListener('click', closeMenu);
-      menuModal.addEventListener('click', (e)=>{ if(e.target===menuModal) closeMenu(); });
-      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMenu(); });
+    const createUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${baseId}/tables/${tableId}/records`;
+    const resp = await axios.post(createUrl, { records: [record] }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      timeout: 8000
     });
-  </script>
-</body>
-</html>
+
+    if (resp.data && resp.data.data) {
+      return json({ ok:true });
+    } else {
+      return json({ ok:false, msg:'飞书写入失败' }, 500);
+    }
+  } catch (err) {
+    return json({ ok:false, msg: '服务异常' }, 500);
+  }
+};
+
+function corsHeaders(){
+  return {
+    'Access-Control-Allow-Origin': '*', // 也可改为你的域名
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+}
+function json(obj, status=200){
+  return {
+    statusCode: status,
+    headers: { 'Content-Type':'application/json', ...corsHeaders() },
+    body: JSON.stringify(obj)
+  };
+}
+
+async function getTenantToken(){
+  const resp = await axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+    app_id: process.env.FEISHU_APP_ID,
+    app_secret: process.env.FEISHU_APP_SECRET
+  }, { timeout: 6000 });
+  if(resp.data && resp.data.tenant_access_token){
+    return resp.data.tenant_access_token;
+  }
+  throw new Error('get tenant_access_token failed');
+}
