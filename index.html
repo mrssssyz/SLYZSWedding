@@ -126,6 +126,8 @@
     .map{aspect-ratio:16/10;border:0;width:100%;border-radius:12px;min-height:300px}
     .map-actions{display:flex;flex-direction:column;gap:10px}
     .map-actions .btn{width:100%;text-align:center;font-size:14px;padding:10px 14px}
+    /* 让括号说明换行成“第二行” */
+    .btn .subline{display:block;font-size:12px;line-height:1.2;opacity:.9;margin-top:2px}
     @media (max-width:480px){ .map-actions .btn{font-size:13px;padding:9px 12px} }
 
     /* Tips */
@@ -247,8 +249,6 @@
     }
     @keyframes fall{ to{ transform: translateY(120vh); } }
     @keyframes sway{ from{ transform: translateX(-14px) rotate(-12deg);} to{ transform: translateX(14px) rotate(12deg);} }
-    /* spin 已定义，复用 */
-
     @media (prefers-reduced-motion: reduce){ .petals{ display:none; } }
 
     /* === B：金箔流光姓名（应用在 .couple 上） === */
@@ -283,6 +283,11 @@
       background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), #d9b16c 55%, #8a1111 85%);
       box-shadow: 0 2px 6px rgba(0,0,0,.2);
     }
+
+    /* === 让邀请文案与底部在暗背景上更醒目 === */
+    .invite{color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5); margin:.25em 0;}
+    footer{color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5)}
+    footer .muted{color:rgba(255,255,255,.9)}
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -338,9 +343,10 @@
     <!-- C：红缎带分隔线（章节装饰） -->
     <div class="ribbon-sep reveal" aria-hidden="true"></div>
 
-    <!-- 简短寄语 -->
+    <!-- 简短寄语（英中分两行，并提亮颜色） -->
     <section class="center reveal">
-      <p class="muted">We joyfully invite you to celebrate our wedding. 期待与您共享这一刻。</p>
+      <p class="invite">We joyfully invite you to celebrate our wedding.</p>
+      <p class="invite">期待与您共享这一刻。</p>
       <a href="#details" class="btn">查看详细信息</a>
     </section>
 
@@ -381,7 +387,8 @@
             referrerpolicy="no-referrer-when-downgrade">
           </iframe>
           <div class="rsvp-actions" style="margin-top:12px">
-            <a class="btn" target="_blank" rel="noopener" href="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg">在飞书中打开（推荐）</a>
+            <a class="btn" target="_blank" rel="noopener" href="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg">在飞书中打开</a>
+            <span class="btn subline" aria-hidden="true">（推荐）</span>
           </div>
           <p class="muted" style="margin-top:10px;font-size:13px">如遇加载问题，请点击“在飞书中打开”。</p>
         </div>
@@ -404,12 +411,20 @@
       <h2 class="title-serif center">地点与交通 · Venue</h2>
       <div class="card map-card" style="margin-top:18px">
         <div>
-          <h3>吉林省长春市 · 香格里拉酒店</h3>
+          <!-- 1) 城市与酒店分两行 -->
+          <h3>吉林省长春市<br>香格里拉酒店</h3>
           <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
           <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
           <div class="map-actions">
-            <a class="btn" target="_blank" rel="noopener" href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">高德地图（国内推荐）</a>
-            <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Shangri-La%20Hotel%20Changchun">Google 地图（国外推荐）</a>
+            <!-- 2) 确保链接各自跳转，括号说明放第二行 -->
+            <a class="btn" target="_blank" rel="noopener"
+               href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">
+              <span>高德地图</span><span class="subline">（国内推荐）</span>
+            </a>
+            <a class="btn" target="_blank" rel="noopener"
+               href="https://www.google.com/maps?q=43.892416,125.312401">
+              <span>Google 地图</span><span class="subline">（国外推荐）</span>
+            </a>
           </div>
         </div>
         <div id="leaflet-map" class="map"></div>
@@ -417,6 +432,7 @@
     </section>
 
     <footer class="center reveal">
+      <!-- 4) 底部文案提亮，样式在上方 footer 中已覆盖 -->
       <div>感谢见证我们的幸福时刻 · With love, Yuzhou & Sha</div>
       <div style="margin-top:6px" class="muted">© <span id="year"></span> Our Wedding</div>
     </footer>
