@@ -63,7 +63,11 @@
     .btn{display:inline-block;padding:12px 20px;border-radius:999px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)}
     .btn:hover{filter:brightness(0.96)}
     .btn.ghost{background:#fff;color:var(--brand);border:1px solid rgba(0,0,0,.14)}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      /* D：细金边（默认主题） */
+      border:1px solid rgba(217,177,108,.22);
+    }
     .grid{display:grid;gap:20px}
     .center{text-align:center}
 
@@ -150,7 +154,7 @@
       .modal .content{padding:12px 14px}
     }
 
-    /* 右下角：控制 MV 声音的按钮 */
+    /* 右下角：控制 MV 静音/开声 */
     .music-fab{
       position:fixed; right:16px; bottom:16px; z-index:9999;
       width:54px; height:54px; border-radius:999px;
@@ -212,53 +216,73 @@
 </svg>');
     }
 
-    /* 方案三：HERO 囍印章（低调角标） */
+    /* === 方案三：右上角自动旋转红色爱心角标 === */
+    .corner-heart{
+      position:absolute; right:14px; top:14px; z-index:2;
+      width:66px; height:66px; display:grid; place-items:center;
+      border-radius:50%;
+      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%);
+      filter: drop-shadow(0 8px 18px rgba(181,18,18,.28));
+      animation: spin 12s linear infinite;
+    }
+    .corner-heart svg{
+      width:44px; height:44px;
+      fill:#d81d1d;
+      stroke:#ffdddd; stroke-width:.8px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+    }
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion: reduce){ .corner-heart{ animation:none; } }
 
-/* 右上角：自动旋转红色爱心角标 */
-.corner-heart{
-  position:absolute; right:14px; top:14px; z-index:2;
-  width:66px; height:66px; display:grid; place-items:center;
-  /* 可选的柔光圆底，让爱心在复杂背景上更清晰 */
-  border-radius:50%;
-  background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%);
-  filter: drop-shadow(0 8px 18px rgba(181,18,18,.28));
-  animation: spin 12s linear infinite;
-}
-.corner-heart svg{
-  width:44px; height:44px;
-  fill:#d81d1d;                      /* 红色爱心主体 */
-  stroke:#ffdddd; stroke-width:.8px; /* 淡淡描边，提清晰度 */
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
-}
-@keyframes spin{
-  from{ transform: rotate(0deg); }
-  to{ transform: rotate(360deg); }
-}
-/* 关怀：若用户偏好减少动画，则不旋转 */
-@media (prefers-reduced-motion: reduce){
-  .corner-heart{ animation:none; }
-}
+    /* === A：花瓣雨 === */
+    .petals{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:5000; }
+    .petal{ position:absolute; top:-12vh; left:var(--l); animation:fall var(--dur) linear var(--delay) infinite; }
+    .petal > span{
+      display:block; width:14px; height:12px;
+      background: radial-gradient(35% 45% at 30% 30%, #ffd1dc, #ff9bb2 60%, #e64a6a 100%);
+      border-radius:60% 40% 60% 40% / 60% 60% 40% 40%;
+      opacity:.85; filter:blur(.2px); transform-origin:50% 60%;
+      animation: sway calc(var(--dur)*.9) ease-in-out var(--delay) infinite alternate,
+                 spin calc(var(--dur)*.6) linear var(--delay) infinite;
+    }
+    @keyframes fall{ to{ transform: translateY(120vh); } }
+    @keyframes sway{ from{ transform: translateX(-14px) rotate(-12deg);} to{ transform: translateX(14px) rotate(12deg);} }
+    /* spin 已定义，复用 */
 
-    /* 花瓣雨 */
-.petals{
-  position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:5000;
-}
-.petal{ position:absolute; top:-12vh; left:var(--l); animation:fall var(--dur) linear var(--delay) infinite; }
-.petal > span{
-  display:block; width:14px; height:12px;
-  background: radial-gradient(35% 45% at 30% 30%, #ffd1dc, #ff9bb2 60%, #e64a6a 100%);
-  border-radius:60% 40% 60% 40% / 60% 60% 40% 40%;
-  opacity:.85; filter:blur(.2px); transform-origin:50% 60%;
-  animation: sway calc(var(--dur)*.9) ease-in-out var(--delay) infinite alternate,
-             spin calc(var(--dur)*.6) linear var(--delay) infinite;
-}
-@keyframes fall{ to{ transform: translateY(120vh); } }
-@keyframes sway{ from{ transform: translateX(-14px) rotate(-12deg);} to{ transform: translateX(14px) rotate(12deg);} }
-@keyframes spin{ to{ transform: rotate(360deg);} }
-/* 低动画偏好时自动关闭 */
-@media (prefers-reduced-motion: reduce){ .petals{ display:none; } }
+    @media (prefers-reduced-motion: reduce){ .petals{ display:none; } }
 
-    
+    /* === B：金箔流光姓名（应用在 .couple 上） === */
+    .gold-shimmer{
+      color:transparent;
+      background-image:
+        linear-gradient(100deg, #b08a68 0%, #f3e6c3 22%, #b08a68 45%, #d9b16c 60%, #b08a68 80%);
+      background-size:200% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      animation: shimmer 6s linear infinite;
+      text-shadow: 0 2px 6px rgba(0,0,0,.25);
+    }
+    @keyframes shimmer{ to{ background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce){ .gold-shimmer{ animation:none; } }
+
+    /* === C：红缎带分隔线（用于章节之间） === */
+    .ribbon-sep{
+      height:14px; border-radius:999px; margin:28px auto;
+      max-width:760px;
+      background:
+        linear-gradient(90deg,#8a1111 0%, #c41d1d 40%, #e3474a 50%, #c41d1d 60%, #8a1111 100%);
+      box-shadow:
+        0 6px 14px rgba(138,17,17,.18),
+        inset 0 1px 0 rgba(255,255,255,.35),
+        inset 0 -1px 0 rgba(0,0,0,.06);
+      position:relative;
+    }
+    .ribbon-sep::after{
+      content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:22px; height:22px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), #d9b16c 55%, #8a1111 85%);
+      box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -275,26 +299,25 @@
   </div>
   <div class="bg-scrim" aria-hidden="true"></div>
 
-  <!-- 花瓣雨（可选装饰） -->
+  <!-- 花瓣雨（A，可选装饰） -->
   <div class="petals" aria-hidden="true"></div>
 
   <div class="container">
     <!-- HERO（保留 card 外观 + 覆盖图 time1.jpg） -->
     <section class="hero card reveal" id="home">
 
-<!-- 右上角：自动旋转红色爱心 -->
-<div class="corner-heart" aria-hidden="true" title="Love">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <!-- 简洁、圆润的心形路径 -->
-    <path d="M12 21s-6.6-4.2-9.4-7C1.2 12.6.7 9.8 2.3 8.2c1.3-1.3 3.5-1.3 4.8 0L12 13l4.9-4.8c1.3-1.3 3.5-1.3 4.8 0 1.6 1.6 1.1 4.4-.3 5.8-2.8 2.8-9.4 7-9.4 7z"/>
-  </svg>
-</div>
-
+      <!-- 右上角：自动旋转红色爱心（已加入） -->
+      <div class="corner-heart" aria-hidden="true" title="Love">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21s-6.6-4.2-9.4-7C1.2 12.6.7 9.8 2.3 8.2c1.3-1.3 3.5-1.3 4.8 0L12 13l4.9-4.8c1.3-1.3 3.5-1.3 4.8 0 1.6 1.6 1.1 4.4-.3 5.8-2.8 2.8-9.4 7-9.4 7z"/>
+        </svg>
+      </div>
 
       <div class="cover" aria-hidden="true"></div>
       <div class="inner">
         <div class="title-serif kicker" style="font-size:14px;opacity:.9;letter-spacing:.14em;color:#fff">W E D D I N G</div>
-        <h1 class="couple title-serif">宋禹洲 <span class="and">&</span> 骆沙</h1>
+        <!-- B：给姓名加上金箔流光 -->
+        <h1 class="couple title-serif gold-shimmer">宋禹洲 <span class="and">&</span> 骆沙</h1>
         <div class="ornament" aria-hidden="true"></div>
         <div class="dateplace">
           <span class="date">2025年10月19日 上午10:58</span><br>
@@ -311,6 +334,9 @@
         <a class="scroll-down" href="#rsvp">↓ 立即回复 RSVP</a>
       </div>
     </section>
+
+    <!-- C：红缎带分隔线（章节装饰） -->
+    <div class="ribbon-sep reveal" aria-hidden="true"></div>
 
     <!-- 简短寄语 -->
     <section class="center reveal">
@@ -337,6 +363,9 @@
         <img src="images/p1.jpg" alt="Photo 1" loading="lazy">
       </div>
     </section>
+
+    <!-- 再加一条红缎带分隔线 -->
+    <div class="ribbon-sep reveal" aria-hidden="true"></div>
 
     <!-- RSVP + Tips -->
     <section id="rsvp" class="reveal">
@@ -539,23 +568,21 @@
       },{threshold:.12});
       document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-// 生成少量花瓣（轻量）
-const petalsBox = document.querySelector('.petals');
-if (petalsBox){
-  const N = 18; // 数量可调，10~24 较稳妥
-  for(let i=0;i<N;i++){
-    const d = document.createElement('div');
-    d.className = 'petal';
-    d.style.setProperty('--l', Math.random()*100 + 'vw');
-    d.style.setProperty('--dur', (9 + Math.random()*6) + 's');
-    d.style.setProperty('--delay', (-Math.random()*9) + 's');
-    const s = document.createElement('span');
-    d.appendChild(s);
-    petalsBox.appendChild(d);
-  }
-}
-
-      
+      // ===== A：生成少量花瓣（轻量）=====
+      const petalsBox = document.querySelector('.petals');
+      if (petalsBox){
+        const N = 18; // 数量可调：10~24 建议
+        for(let i=0;i<N;i++){
+          const d = document.createElement('div');
+          d.className = 'petal';
+          d.style.setProperty('--l', Math.random()*100 + 'vw');
+          d.style.setProperty('--dur', (9 + Math.random()*6) + 's');
+          d.style.setProperty('--delay', (-Math.random()*9) + 's');
+          const s = document.createElement('span');
+          d.appendChild(s);
+          petalsBox.appendChild(d);
+        }
+      }
     });
   </script>
 </body>
