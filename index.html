@@ -65,7 +65,7 @@
     .btn.ghost{background:#fff;color:var(--brand);border:1px solid rgba(0,0,0,.14)}
     .card{
       background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-      /* D：细金边（默认主题） */
+      /* D：细金边 */
       border:1px solid rgba(217,177,108,.22);
     }
     .grid{display:grid;gap:20px}
@@ -176,49 +176,27 @@
     .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease}
     .reveal.in{opacity:1; transform:none}
 
-    /* ========= 方案一：红金主题（可选） ========= */
+    /* ========= 红金主题（可选） ========= */
     :root[data-theme="red"]{
-      --bg:#fff8f4;
-      --card:#ffffff;
-      --fg:#1a1a1a;
-      --muted:#7b7e85;
-      --brand:#8a1111;     /* 主红（按钮等） */
-      --brand-2:#d9b16c;   /* 标题金色 */
-      --ring:#c41d1d;
-      --gold:#d8b77f;
+      --bg:#fff8f4; --card:#ffffff; --fg:#1a1a1a; --muted:#7b7e85;
+      --brand:#8a1111; --brand-2:#d9b16c; --ring:#c41d1d; --gold:#d8b77f;
     }
-    :root[data-theme="red"] .card{
-      border:1px solid rgba(196,29,29,.12);
-      box-shadow:0 12px 36px rgba(138,17,17,.06);
-    }
-    :root[data-theme="red"] .btn{
-      background:var(--brand);
-      border-color:rgba(0,0,0,.06);
-    }
-    :root[data-theme="red"] .btn:hover{
-      filter:none; transform:translateY(-1px);
-      box-shadow:0 10px 24px rgba(138,17,17,.18);
-    }
-    :root[data-theme="red"] .btn.ghost{
-      background:#fff; color:var(--brand); border:1px solid rgba(196,29,29,.25);
-    }
-    /* 方案二：红金 ornament（随红金主题自动切换） */
+    :root[data-theme="red"] .card{ border:1px solid rgba(196,29,29,.12); box-shadow:0 12px 36px rgba(138,17,17,.06); }
+    :root[data-theme="red"] .btn{ background:var(--brand); border-color:rgba(0,0,0,.06); }
+    :root[data-theme="red"] .btn:hover{ filter:none; transform:translateY(-1px); box-shadow:0 10px 24px rgba(138,17,17,.18); }
+    :root[data-theme="red"] .btn.ghost{ background:#fff; color:var(--brand); border:1px solid rgba(196,29,29,.25); }
     :root[data-theme="red"] .ornament{
       background:center/contain no-repeat
         url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="UTF-8"?>\
 <svg xmlns="http://www.w3.org/2000/svg" width="420" height="26" viewBox="0 0 420 26">\
-  <defs>\
-    <linearGradient id="g" x1="0" x2="1" y1="0" y2="0">\
-      <stop stop-color="%23c41d1d"/><stop offset="1" stop-color="%23d9b16c"/>\
-    </linearGradient>\
-  </defs>\
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0">\
+    <stop stop-color="%23c41d1d"/><stop offset="1" stop-color="%23d9b16c"/></linearGradient></defs>\
   <path d="M10 13 H170" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/>\
   <path d="M250 13 H410" stroke="url(%23g)" stroke-width="2" stroke-linecap="round" fill="none"/>\
-  <path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/>\
-</svg>');
+  <path d="M210 10c0-6 10-9 10 0 0-9 10-6 10 0 0 8-10 10-10 10s-10-2-10-10z" fill="url(%23g)"/></svg>');
     }
 
-    /* === 方案三：右上角自动旋转红色爱心角标 === */
+    /* === 右上角自动旋转红色爱心角标 === */
     .corner-heart{
       position:absolute; right:14px; top:14px; z-index:2;
       width:66px; height:66px; display:grid; place-items:center;
@@ -227,12 +205,7 @@
       filter: drop-shadow(0 8px 18px rgba(181,18,18,.28));
       animation: spin 12s linear infinite;
     }
-    .corner-heart svg{
-      width:44px; height:44px;
-      fill:#d81d1d;
-      stroke:#ffdddd; stroke-width:.8px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
-    }
+    .corner-heart svg{ width:44px; height:44px; fill:#d81d1d; stroke:#ffdddd; stroke-width:.8px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
     @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
     @media (prefers-reduced-motion: reduce){ .corner-heart{ animation:none; } }
 
@@ -244,8 +217,7 @@
       background: radial-gradient(35% 45% at 30% 30%, #ffd1dc, #ff9bb2 60%, #e64a6a 100%);
       border-radius:60% 40% 60% 40% / 60% 60% 40% 40%;
       opacity:.85; filter:blur(.2px); transform-origin:50% 60%;
-      animation: sway calc(var(--dur)*.9) ease-in-out var(--delay) infinite alternate,
-                 spin calc(var(--dur)*.6) linear var(--delay) infinite;
+      animation: sway calc(var(--dur)*.9) ease-in-out var(--delay) infinite alternate, spin calc(var(--dur)*.6) linear var(--delay) infinite;
     }
     @keyframes fall{ to{ transform: translateY(120vh); } }
     @keyframes sway{ from{ transform: translateX(-14px) rotate(-12deg);} to{ transform: translateX(14px) rotate(12deg);} }
@@ -254,27 +226,20 @@
     /* === B：金箔流光姓名（应用在 .couple 上） === */
     .gold-shimmer{
       color:transparent;
-      background-image:
-        linear-gradient(100deg, #b08a68 0%, #f3e6c3 22%, #b08a68 45%, #d9b16c 60%, #b08a68 80%);
+      background-image: linear-gradient(100deg, #b08a68 0%, #f3e6c3 22%, #b08a68 45%, #d9b16c 60%, #b08a68 80%);
       background-size:200% 100%;
-      -webkit-background-clip:text;
-      background-clip:text;
+      -webkit-background-clip:text; background-clip:text;
       animation: shimmer 6s linear infinite;
       text-shadow: 0 2px 6px rgba(0,0,0,.25);
     }
     @keyframes shimmer{ to{ background-position: -200% 0; } }
     @media (prefers-reduced-motion: reduce){ .gold-shimmer{ animation:none; } }
 
-    /* === C：红缎带分隔线（用于章节之间） === */
+    /* === C：红缎带分隔线 === */
     .ribbon-sep{
-      height:14px; border-radius:999px; margin:28px auto;
-      max-width:760px;
-      background:
-        linear-gradient(90deg,#8a1111 0%, #c41d1d 40%, #e3474a 50%, #c41d1d 60%, #8a1111 100%);
-      box-shadow:
-        0 6px 14px rgba(138,17,17,.18),
-        inset 0 1px 0 rgba(255,255,255,.35),
-        inset 0 -1px 0 rgba(0,0,0,.06);
+      height:14px; border-radius:999px; margin:28px auto; max-width:760px;
+      background: linear-gradient(90deg,#8a1111 0%, #c41d1d 40%, #e3474a 50%, #c41d1d 60%, #8a1111 100%);
+      box-shadow: 0 6px 14px rgba(138,17,17,.18), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.06);
       position:relative;
     }
     .ribbon-sep::after{
@@ -284,16 +249,56 @@
       box-shadow: 0 2px 6px rgba(0,0,0,.2);
     }
 
-    /* === 让邀请文案与底部在暗背景上更醒目 === */
+    /* === 邀请 & 页脚在暗背景上更醒目 === */
     .invite{color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5); margin:.25em 0;}
     footer{color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5)}
     footer .muted{color:rgba(255,255,255,.9)}
+
+    /* ======== 预加载页（进入前 Loading） ======== */
+    .preloader{
+      position:fixed; inset:0; background:radial-gradient(1200px 800px at 50% 35%, #1a1a1a, #0b0b0b);
+      z-index:20000; display:grid; place-items:center; transition:opacity .6s ease, visibility .6s ease;
+    }
+    .preloader.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+    .pl-card{
+      width:min(92vw,520px); padding:28px 22px; border-radius:18px; text-align:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12); box-shadow:0 20px 60px rgba(0,0,0,.35);
+      color:#fff;
+    }
+    .pl-heart{ display:grid; place-items:center; margin-bottom:14px; }
+    .pl-heart svg{ width:64px; height:64px; fill:#e53935; filter: drop-shadow(0 6px 14px rgba(229,57,53,.35)); animation: beat 1.4s ease-in-out infinite; }
+    @keyframes beat{ 0%,100%{ transform:scale(1);} 30%{ transform:scale(1.12);} 60%{ transform:scale(0.98);} }
+    .pl-title{ font-weight:700; letter-spacing:.06em; color:#f7e6c9; margin-bottom:10px; }
+    .pl-bar{ height:10px; border-radius:999px; background:rgba(255,255,255,.15); overflow:hidden; }
+    .pl-bar-inner{ height:100%; width:0%; background:linear-gradient(90deg, #b08a68, #f3e6c3, #b08a68); box-shadow:inset 0 0 10px rgba(255,255,255,.35); transition:width .25s ease; }
+    .pl-percent{ margin-top:10px; font-variant-numeric:tabular-nums; color:#fff; }
+    .pl-tip{ margin-top:6px; color:rgba(255,255,255,.75); font-size:12px; }
+    .pl-actions{ margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .pl-actions .btn{ background:#8a1111; border-color:transparent; }
+    .pl-actions .btn[disabled]{ opacity:.6; filter:grayscale(30%); cursor:not-allowed; }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 <body>
   <!-- 若要启用红金主题，把 body 改成：<body data-theme="red"> -->
+
+  <!-- ======= 预加载页（进入按钮触发播放 MV） ======= -->
+  <div id="preloader" class="preloader" aria-live="polite">
+    <div class="pl-card">
+      <div class="pl-heart" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-6.6-4.2-9.4-7C1.2 12.6.7 9.8 2.3 8.2c1.3-1.3 3.5-1.3 4.8 0L12 13l4.9-4.8c1.3-1.3 3.5-1.3 4.8 0 1.6 1.6 1.1 4.4-.3 5.8-2.8 2.8-9.4 7-9.4 7z"/></svg>
+      </div>
+      <div class="pl-title title-serif">正在加载请柬资源</div>
+      <div class="pl-bar"><div class="pl-bar-inner" id="plBar"></div></div>
+      <div class="pl-percent" id="plPercent">0%</div>
+      <div class="pl-actions">
+        <button id="enterBtn" class="btn" disabled>进入</button>
+      </div>
+      <div class="pl-tip">载入图片与背景 MV… 完成后可进入</div>
+    </div>
+  </div>
 
   <!-- 背景 MV -->
   <div class="bgmv-wrap" aria-hidden="true">
@@ -311,7 +316,7 @@
     <!-- HERO（保留 card 外观 + 覆盖图 time1.jpg） -->
     <section class="hero card reveal" id="home">
 
-      <!-- 右上角：自动旋转红色爱心（已加入） -->
+      <!-- 右上角：自动旋转红色爱心 -->
       <div class="corner-heart" aria-hidden="true" title="Love">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 21s-6.6-4.2-9.4-7C1.2 12.6.7 9.8 2.3 8.2c1.3-1.3 3.5-1.3 4.8 0L12 13l4.9-4.8c1.3-1.3 3.5-1.3 4.8 0 1.6 1.6 1.1 4.4-.3 5.8-2.8 2.8-9.4 7-9.4 7z"/>
@@ -321,7 +326,7 @@
       <div class="cover" aria-hidden="true"></div>
       <div class="inner">
         <div class="title-serif kicker" style="font-size:14px;opacity:.9;letter-spacing:.14em;color:#fff">W E D D I N G</div>
-        <!-- B：给姓名加上金箔流光 -->
+        <!-- B：金箔流光姓名 -->
         <h1 class="couple title-serif gold-shimmer">宋禹洲 <span class="and">&</span> 骆沙</h1>
         <div class="ornament" aria-hidden="true"></div>
         <div class="dateplace">
@@ -340,10 +345,10 @@
       </div>
     </section>
 
-    <!-- C：红缎带分隔线（章节装饰） -->
+    <!-- C：红缎带分隔线 -->
     <div class="ribbon-sep reveal" aria-hidden="true"></div>
 
-    <!-- 简短寄语（英中分两行，并提亮颜色） -->
+    <!-- 简短寄语（英中分两行） -->
     <section class="center reveal">
       <p class="invite">We joyfully invite you to celebrate our wedding.</p>
       <p class="invite">期待与您共享这一刻。</p>
@@ -387,8 +392,7 @@
             referrerpolicy="no-referrer-when-downgrade">
           </iframe>
           <div class="rsvp-actions" style="margin-top:12px">
-            <a class="btn" target="_blank" rel="noopener" href="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg">在飞书中打开</a>
-            <span class="btn subline" aria-hidden="true">（推荐）</span>
+            <a class="btn" target="_blank" rel="noopener" href="https://dcnimb97gm62.feishu.cn/share/base/form/shrcnaupBRrI3UN4xHtHOBKKqVg">在飞书中打开（推荐）</a>
           </div>
           <p class="muted" style="margin-top:10px;font-size:13px">如遇加载问题，请点击“在飞书中打开”。</p>
         </div>
@@ -411,12 +415,11 @@
       <h2 class="title-serif center">地点与交通 · Venue</h2>
       <div class="card map-card" style="margin-top:18px">
         <div>
-          <!-- 1) 城市与酒店分两行 -->
+          <!-- 城市与酒店分两行 -->
           <h3>吉林省长春市<br>香格里拉酒店</h3>
           <div class="muted">吉林省长春市西安大路569号（人民广场附近）</div>
           <p style="margin-top:10px">建议乘坐地铁1号线至人民广场站，步行约5-8分钟；或打车直达酒店门口。</p>
           <div class="map-actions">
-            <!-- 2) 确保链接各自跳转，括号说明放第二行 -->
             <a class="btn" target="_blank" rel="noopener"
                href="https://uri.amap.com/marker?position=125.312401,43.892416&name=%E9%95%BF%E6%98%A5%E9%A6%99%E6%A0%BC%E9%87%8C%E6%8B%89%E9%85%92%E5%BA%97">
               <span>高德地图</span><span class="subline">（国内推荐）</span>
@@ -432,7 +435,6 @@
     </section>
 
     <footer class="center reveal">
-      <!-- 4) 底部文案提亮，样式在上方 footer 中已覆盖 -->
       <div>感谢见证我们的幸福时刻 · With love, Yuzhou & Sha</div>
       <div style="margin-top:6px" class="muted">© <span id="year"></span> Our Wedding</div>
     </footer>
@@ -491,12 +493,13 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function(){
+      // ===== 年份 =====
+      const y = document.getElementById('year'); if(y) y.textContent = new Date().getFullYear();
+
       // ===== 倒计时 =====
       const targetUTC = new Date(Date.UTC(2025, 9, 19, 2, 58, 0));
-      const dEl = document.getElementById('dday'),
-            hEl = document.getElementById('dh'),
-            mEl = document.getElementById('dm'),
-            sEl = document.getElementById('ds');
+      const dEl = document.getElementById('dday'), hEl = document.getElementById('dh'),
+            mEl = document.getElementById('dm'), sEl = document.getElementById('ds');
       function renderCountdown(){
         const now = new Date();
         let diff = Math.max(0, targetUTC.getTime() - now.getTime());
@@ -511,10 +514,7 @@
       }
       renderCountdown(); setInterval(renderCountdown, 1000);
 
-      // 年份
-      const y = document.getElementById('year'); if(y) y.textContent = new Date().getFullYear();
-
-      // ===== 背景 MV 声音按钮（单按钮：开声/静音；自动播放保持不变）=====
+      // ===== MV 声音按钮（单按钮：开声/静音；自动播放保持不变）=====
       const video = document.getElementById('bgmv');
       const fab   = document.getElementById('musicFab');
       const toast = document.getElementById('toast');
@@ -533,9 +533,7 @@
         for(let i=1;i<=steps;i++){video.volume=start+(targetVol-start)*i/steps;await new Promise(r=>setTimeout(r,dt));}
       }
 
-      // 初始：静音自动播（兼容移动端/微信）
       video.muted = true; video.volume = 1;
-      // 若用户曾开过声，首次交互自动淡入开声
       if(localStorage.getItem(KEY)==='on'){
         const first=async()=>{ try{ await video.play(); video.muted=false; video.volume=0; await fadeTo(1,700); }catch(e){}; updateFab(); remove(); }
         const remove=()=>['touchstart','click','keydown'].forEach(t=>window.removeEventListener(t,first,true))
@@ -587,7 +585,7 @@
       // ===== A：生成少量花瓣（轻量）=====
       const petalsBox = document.querySelector('.petals');
       if (petalsBox){
-        const N = 18; // 数量可调：10~24 建议
+        const N = 18; // 10~24 建议
         for(let i=0;i<N;i++){
           const d = document.createElement('div');
           d.className = 'petal';
@@ -599,6 +597,76 @@
           petalsBox.appendChild(d);
         }
       }
+
+      // ======== 预加载逻辑（图片 + MV） ========
+      const preloader = document.getElementById('preloader');
+      const plBar = document.getElementById('plBar');
+      const plPercent = document.getElementById('plPercent');
+      const enterBtn = document.getElementById('enterBtn');
+
+      // 预加载列表：DOM 中的 <img>，CSS 背景图 time1.jpg，背景 MV
+      const assetSet = new Set();
+      document.querySelectorAll('img[src]').forEach(img => assetSet.add(img.getAttribute('src')));
+      assetSet.add('images/time1.jpg');
+      const mvUrl = video?.getAttribute('src'); if(mvUrl) assetSet.add(mvUrl);
+
+      const assets = Array.from(assetSet);
+      const total = assets.length;
+      let done = 0;
+
+      function updateProgress(extra=0){
+        const p = Math.min(100, Math.round(((done + extra) / total) * 100));
+        plBar.style.width = p + '%';
+        plPercent.textContent = p + '%';
+        if(p >= 100){
+          enterBtn.disabled = false;
+        }
+      }
+
+      // 预加载图片
+      function loadImage(url){
+        return new Promise(resolve=>{
+          const i = new Image();
+          i.onload = ()=>{ done++; updateProgress(); resolve(); };
+          i.onerror = ()=>{ done++; updateProgress(); resolve(); };
+          i.src = url;
+        });
+      }
+
+      // 预加载视频：保守起见，以 canplaythrough 作为完成；若 8s 仍未触发，则放行（移动端可能受限）
+      function loadVideo(url){
+        return new Promise(resolve=>{
+          let settled = false;
+          const onReady = ()=>{ if(!settled){ settled = true; done++; updateProgress(); cleanup(); resolve(); } }
+          const onTimeout = ()=>{ if(!settled){ settled = true; done++; updateProgress(); cleanup(); resolve(); } }
+          function cleanup(){
+            video.removeEventListener('canplaythrough', onReady);
+            video.removeEventListener('loadeddata', onReady);
+          }
+          video.addEventListener('canplaythrough', onReady, { once:true });
+          video.addEventListener('loadeddata', onReady, { once:true });
+          // 若浏览器已缓存足够数据，直接判定
+          if(video.readyState >= 3){ onReady(); }
+          // 兜底超时
+          setTimeout(onTimeout, 8000);
+          try{ video.load(); }catch(e){}
+        });
+      }
+
+      // 执行预加载
+      (async ()=>{
+        for(const url of assets){
+          if(url.endsWith('.mp4')) await loadVideo(url);
+          else await loadImage(url);
+        }
+        updateProgress(); // 确保达到 100%
+      })();
+
+      // 进入按钮：淡出 Loading，触发 MV 播放（保持静音，符合手机策略；可用右下角按钮开声）
+      enterBtn.addEventListener('click', async ()=>{
+        preloader.classList.add('hidden');
+        try{ await video.play(); }catch(e){}
+      });
     });
   </script>
 </body>
