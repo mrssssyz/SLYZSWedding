@@ -667,6 +667,80 @@
         preloader.classList.add('hidden');
         try{ await video.play(); }catch(e){}
       });
+
+// ===== 文本自适应字号（仅当换行仍“放不下”时才逐步缩小）=====
+(function(){
+  // 可调参数
+  const MIN_FONT_PX = 12;      // 最小字号（px）
+  const STEP = 0.5;            // 每次缩小步长（px）
+  const MAX_ITER = 60;         // 最多迭代次数（防止极端场景）
+
+  // 需要自适应的选择器（不改你的结构）
+  const SELECTORS = [
+    '.couple',                 // 新人姓名（大标题）
+    '.title-serif.kicker',     // 顶部 W E D D I N G
+    '.invite',                 // 邀请语（中英文）
+    '.dateplace',              // 日期+地点行
+    '.map-card h3',            // 地图卡片标题（城市/酒店）
+    '.rsvp .card h3',          // 各卡片小标题
+    '.btn'                     // 各类按钮（含地图按钮等）
+  ];
+
+  // 判断是否“横向溢出”
+  function isOverflowX(el){
+    // +1 容差，避免像素取整导致的误判
+    return el.scrollWidth - el.clientWidth > 1;
+  }
+
+  // 尝试缩小直到不溢出或到达最小字号
+  function autoFitOne(el){
+    // 先让元素可换行（若 CSS 已允许则这一步只是兜底）
+    const prevWS = el.style.whiteSpace;
+    el.style.whiteSpace = 'normal';
+
+    // 如果已不溢出，直接还原 white-space
+    if(!isOverflowX(el)){ el.style.whiteSpace = prevWS; return; }
+
+    const cs = getComputedStyle(el);
+    let size = parseFloat(cs.fontSize) || 16;
+    let iter = 0;
+
+    while(isOverflowX(el) && size > MIN_FONT_PX && iter < MAX_ITER){
+      size = Math.max(MIN_FONT_PX, size - STEP);
+      el.style.fontSize = size + 'px';
+      iter++;
+    }
+
+    // 恢复 white-space（保持你原有的内联样式不被永久改变）
+    el.style.whiteSpace = prevWS;
+  }
+
+  function autoFitAll(){
+    // 仅在较窄视口（如手机）才做强制缩放；宽屏只靠 CSS 自动换行
+    const isNarrow = window.innerWidth <= 480;
+    if(!isNarrow) return;
+
+    const nodes = document.querySelectorAll(SELECTORS.join(','));
+    nodes.forEach(autoFitOne);
+  }
+
+  // 初次执行
+  autoFitAll();
+
+  // 视口尺寸变化时重算
+  window.addEventListener('resize', () => {
+    // 轻微节流，避免持续触发
+    clearTimeout(window.__autoFitT__);
+    window.__autoFitT__ = setTimeout(autoFitAll, 120);
+  });
+
+  // 字体就绪后再跑一次（可改善首屏换行抖动）
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(autoFitAll).catch(()=>{});
+  }
+})();
+
+      
     });
   </script>
 </body>
